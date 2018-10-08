@@ -10,7 +10,7 @@
 </head>
 <body>
 <div>
-    <div class="row">
+    <div class="row" style="padding: 0; overflow: hidden; width: 98vw">
         <div class="col-xs-12" style="width: 100%">
             <div class="container-fluid" style="text-align: center; width: 100%">
                 <h1>Project Proposal - The Seam Team</h1>
@@ -25,8 +25,175 @@
                 </span>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="container-fluid">
+                <h3>Problem Statement</h3>
+                <p>
+                    Finding clothes that fit properly is extremely difficult in stores. Various fits, styles, and brands
+                    make it difficult for shoppers to know how clothing will look on them without trying it on. The
+                    process becomes even more challenging through the online shopping process. When shopping online,
+                    users can only view the basic fit on models presented by the retailer, often getting the wrong
+                    impression about how an outfit might look on them. Oftentimes, the model is of the “ideal”,
+                    physically fit physique, instead of the average body shape of most individuals. To allow shoppers to
+                    gain a better impression of how clothing might fit on their body, we propose a solution to allow
+                    users to take the image of a piece of clothing and overlay it on an image of their body so that they
+                    can better see what the item will look like on them.
+                </p>
+                <p>
+                    From a technical perspective, this problem is more complicated than simply applying a homography
+                    transformation on an image, because different areas of clothing move and stretch in different ways.
+                    Our group plans on developing a system that uses a combination of homography and seam carving
+                    transformations to yield realistic results. To interact with this system, the user will be required
+                    to do three things:
+                </p>
+                <ol>
+                    <li>Upload an image of themselves in a standard pose</li>
+                    <li>Upload an image of the clothing item</li>
+                    <li>Click on key predefined points (ex: shoulder, hips) on the image of themselves (from step 1)
+                    </li>
+                </ol>
+                <p>
+                    The user should expect an outputted image of themselves in the clothing item they uploaded (from
+                    step 2). The goal is for this image to be a realistic and reliable way for users to judge whether or
+                    not they should purchase the given clothing item.
+                </p>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h3>Approach</h3>
+
+                <p> At the beginning of the project, we plan on focusing on developing a system just for t-shirts. The
+                    first step in the process would be to identify the individual components of the t-shirt, such as the
+                    torso and each of the sleeves. Then, we would like to pre-process the image into a custom file type
+                    that would store correspondence information, such as the outline of the shirt and the edges between
+                    the sleeves and torso. This file will contain the segmented image itself, as well as point
+                    information that will allow our system to create multiple homography matrices, one for each segment
+                    of the input image.</p>
+
+                <p>It is important to note that a simple homography mapping will not be sufficient for dealing with the
+                    contours of the input article of clothing, since even segments of articles of clothing are rarely
+                    close to square shaped in practice. The homography and warping process will therefore have to be
+                    modified in order to account for ‘transparent’ pixels, which are not within the boundary of the
+                    article of clothing. These pixels will also have to be detected before warping.</p>
+
+                <p>When the user uploads an image of themselves, we will add another preprocessing step that will scale
+                    the components of the t-shirt to the resolution of the user’s image. The user will choose the
+                    equivalent corresponding points on a picture of themselves wearing a plain shirt. We will then
+                    require the user to input an image of themselves in a standard predetermined pose. We want to use a
+                    combination of seam carving and a homography matrix to generate a transformed image of the t-shirt
+                    with the least amount of distortion that will fit on the user’s body. For example, our system will
+                    use homography for rotation and translation, but seam carving to expand the overall size of the
+                    shirt to prevent distortion of the shirt in any single direction, preventing distortion of important
+                    logos or pockets present in the input shirt. We also plan on manipulating the sleeves separately
+                    from the torso, and will use seam carving to fill in the holes to connect the torso with the
+                    sleeves.</p>
+
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="container-fluid">
+                <h3>Stretch Goals</h3>
+                <ul>
+                    <li>Be able to identify edges based on shadows and different lightings by utilizing filters to
+                        better find accurate correspondences for our homographies
+                    </li>
+                    <li>Apply this technology to more types of clothing including: dresses, loose clothing, formal
+                        attire, etc.
+                    </li>
+                    <li>Apply this technology to fit clothing onto users standing in a variety of poses.</li>
+                    <li>Use feature detection techniques to detect the sleeves of a shirt and break it up into different
+                        components, so the user does not manually need to select the sleeves
+                    </li>
+                    <li>Adding a shadow around the user to make the final image look more realistic</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="container-fluid">
+                <img src="assets/images/diamond-sweater.png" class="img-fluid" style="width: 48%">
+                <img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%">
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h3>Experiment and Results</h3>
+                <p>In the implementation of this project, we will utilize code used to calculate the homography matrix
+                    to map the shirt onto the figure’s body. However, before this mapping can be completed we will need
+                    to analyze the image to assess whether or not the image must be shrunk or expanded in horizontal and
+                    vertical directions. In this modification of the image, we will need to use a modified version of
+                    the seam carving algorithm that utilizes a specific heuristic such that the clothing is modified in
+                    a realistic fashion. This will require extensive testing and parameter tweaking in the calculation
+                    of the energy function within the shirts. Additionally, for cases of sub-optimal lighting of the
+                    figure, we will need to find a way to analyze the image and apply filters so that the result of the
+                    overlay looks natural. Since our system will be the one applying the shirt onto the target image, we
+                    will be able to identify depth discontinuity caused by the edges of the object (without accidentally
+                    detecting other edges) and use this information as a heuristic to add more realistic lighting to the
+                    image.</p>
+                <p>To test the homography matrices that we generate for a figure and a given clothing item, we wish to
+                    test various lighting scenarios on both the image of the figure and the image of the clothing item.
+                    To establish consistency, we will establish a specific pose for individuals to follow when they take
+                    images of themselves. To start off, we hope to be able to map t-shirts onto both male and female
+                    models.</p>
+                <p>Based off of images viewed on major shopping sites we expect most clothing images presented by
+                    retailers to
+                    be of high quality and good lighting. </p>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h3>Data Collection</h3>
+                <p>Since we do not require a training set to complete this assignment, the majority of our data
+                    collection will be from teammates going on Amazon.com and other clothing retail websites to pick up
+                    valid images of clothing items to test on. Additionally, we will be using a mixed variety of models
+                    also picked off of retail websites to try overlaying the clothing on top of as well as actual images
+                    taken from smartphones of students/friends that consent to being included in this project.</p>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h3>Experiments and Results</h3>
+                <p>
+                    To test the results of our mapping, we will examine the following variations in the images:
+                </p>
+                <ul>
+                    <li>
+                        <p><b>Different lighting conditions of the image of the user posing</b></p>
+                        By testing lighting conditions, we will be able to assess how we much manipulate the image of
+                        the user so that the shirt that is overlaid on their body looks natural. For example, if an
+                        image is in dark lighting, but the clothing item is very bright there will be a very obvious
+                        discrepancy
+                        <br>
+                        <br>
+                    </li>
+                    <li>
+                        <p><b>Varying resolutions of the shirt/clothing item and of the image of the user posing
+                        </b></p>
+                        If the resolution of the shirt is significantly larger or smaller than the resolution of the
+                        figure then there will need to be scaling done before any homographies can be completed.
+                        Additionally, there will need to be a threshold in which the algorithm we create decides that
+                        seam carving is a more proper solution to increasing the dimensions of the clothing item because
+                        scaling would be an unrealistic representation of the shirt. We will need to test various
+                        resolutions to best accommodate these conditions and figure out what the “sweet spot” threshold
+                        will be.
+                        <br>
+                        <br>
+                    </li>
+                    <li>
+                        <p><b>Varying the location and number of clicks the user must provide to calculate the
+                            homography
+                            matrix</b></p>
+                        Because user input is required, we need to limit the number of clicks required because otherwise
+                        the user will not believe that using this tool is worth their time. Therefore we need to try to
+                        figure out the minimum number of points on that are strictly necessary for the user to identify
+                        in order for the mapping to work effectively. We expect that shoulder, end of sleeves, and hips
+                        will definitely be necessary, but are currently unsure about how the collar of the shirt will be
+                        accounted for, and how the requirements might change if the clothing item is a long-sleeved
+                        shirt.
+                        <br>
+                        <br>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
