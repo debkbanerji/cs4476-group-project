@@ -28,6 +28,7 @@
         <div class="col-sm-12">
             <div class="container-fluid">
                 <h3>Problem Statement</h3>
+                <hr>
                 <p>
                     Finding clothes that fit properly is extremely difficult in stores. Various fits, styles, and brands
                     make it difficult for shoppers to know how clothing will look on them without trying it on. The
@@ -62,7 +63,7 @@
         <div class="col-sm-12">
             <div class="container-fluid">
                 <h3>Approach</h3>
-
+                <hr>
                 <p> At the beginning of the project, we plan on focusing on developing a system just for t-shirts. The
                     first step in the process would be to identify the individual components of the t-shirt, such as the
                     torso and each of the sleeves. Then, we would like to pre-process the image into a custom file type
@@ -113,13 +114,14 @@
             <div class="container-fluid">
                 <img src="assets/images/diamond-sweater.png" class="img-fluid" style="width: 48%">
                 <img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%">
-                <p> Ideally our system can be used on different clothing styles such as formal clothing</p>
-                <p> Image Source: amazon.com</p>
+                <p>Ideally our system can be used on different clothing styles such as formal clothing</p>
+                <i>(Image Source: amazon.com)</i>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="container-fluid">
                 <h3>Experiment and Results</h3>
+                <hr>
                 <p>In the implementation of this project, we will utilize code that calculates the homography matrix
                     to map the shirt onto the figure’s body. However, before this mapping can be completed we will need
                     to analyze the image to assess whether or not the image must be shrunk or expanded in horizontal and
@@ -146,12 +148,13 @@
                 <br>
                 <p>Based off of images viewed on major shopping sites we expect most clothing images presented by
                     retailers to be of high quality and good lighting. </p>
+                <p><i>(Image Source: amazon.com)</i></p>
                 <div class="container-fluid">
                     <img src="assets/images/black-shirt.png" class="img-fluid" style="width: 32%">
                     <img src="assets/images/grey-shirt.png" class="img-fluid" style="width: 32%">
                     <img src="assets/images/blue-shirt.jpg" class="img-fluid" style="width: 32%">
                     <p> Sample T-shirts we will use to test our system</p>
-                    <p> Image Source: amazon.com</p>
+                    <p><i>(Image Source: amazon.com)</i></p>
                 </div>
             </div>
         </div>
@@ -167,7 +170,17 @@
         </div>
         <div class="col-sm-12">
             <div class="container-fluid">
-                <h3>Experiments and Results</h3>
+                <h3>Testing Our Solution</h3>
+                <p>
+                    A successful solution would be an image of a clothing item overlayed on a user's figure such that the result
+                    looks "natural". We define "natural" to satisfy the following constraints:
+                    <ul>
+                        <li>Lack of image distortion shirt</li>
+                        <li>Lack of artifacts</li>
+                        <li>Proper alignment of shirt on body</li>
+                        <li>Lack of mismatched lighting</li>
+                    </ul>
+                </p>
                 <p>
                     To test the results of our mapping, we will examine the following variations in the images:
                 </p>
