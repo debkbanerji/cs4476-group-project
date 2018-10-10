@@ -36,10 +36,14 @@
                     process becomes even more challenging through the online shopping process. When shopping online,
                     users can only view the basic fit on models presented by the retailer, often getting the wrong
                     impression about how an outfit might look on them. Oftentimes, the model is of the “ideal”,
-                    physically fit physique, instead of the average body shape of most individuals. To allow shoppers to
-                    gain a better impression of how clothing might fit on their body, we propose a solution to allow
-                    users to take the image of a piece of clothing and overlay it on an image of their body so that they
-                    can better see what the item will look like on them.
+                    physically fit physique, instead of the average body shape of most individuals. A healthy amount of research 
+                    has been put into this idea, owing to its incredible potential in ecoommerce. However, the success of
+                    these projects and startups including <i>Virtual Try-On</i> and <i>MIRACloth</i> both rely on a plethora of
+                    complex technologies involving 3D modelling [1], a predefined room setup with multiple cameras, and/or augmented
+                    reality [2]. We hope to eliminate this while still providing an efficient solution to allow shoppers to
+                    gain a better impression of how clothing might fit on their body. The Seam Team proposes our product which
+                    will allow users to take an image of a piece of clothing and overlay it on an image of their body so that they
+                    can better see what the item will look like on them before making a purchase.
                 </p>
                 <p>
                     From a technical perspective, this problem is more complicated than simply applying a homography
@@ -133,12 +137,13 @@
                     vertical directions. In this modification of the image, we will need to use a modified version of
                     the seam carving algorithm that utilizes a specific heuristic such that the clothing is modified in
                     a realistic fashion. This will require extensive testing and parameter tweaking in the calculation
-                    of the energy function within the shirts. Additionally, for cases of sub-optimal lighting of the
-                    figure, we will need to find a way to analyze the image and apply filters so that the result of the
-                    overlay looks natural. Since our system will be the one applying the shirt onto the target image, we
-                    will be able to identify depth discontinuity caused by the edges of the object (without accidentally
-                    detecting other edges) and use this information as a heuristic to add more realistic lighting to the
-                    image.</p>
+                    of the energy function within the shirts. We hope to design an energy function that will not only be
+                    suitable for seam carving, but also be able to account for how fully the item encompasses the user.
+                    Additionally, for cases of sub-optimal lighting of the figure, we will need to find a way to analyze 
+                    the image and apply filters so that the result of the overlay looks natural. Since our system will be
+                    the one applying the shirt onto the target image, we will be able to identify depth discontinuity caused
+                    by the edges of the object (without accidentally detecting other edges) and use this information as a heuristic
+                    to add more realistic lighting to the image.</p>
                 <p>To test the homography matrices that we generate for a figure and a given clothing item, we wish to
                     test various lighting scenarios on both the image of the figure and the image of the clothing item.
                     To establish consistency, we will establish a specific pose for individuals to follow when they take
@@ -228,6 +233,19 @@
                         <br>
                     </li>
                 </ul>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h4>References</h4>
+                <p>
+                    <li>
+                    	[1] Hauswiesner, Stefan et al. “Image-based clothes transfer.” 2011 10th IEEE International Symposium on Mixed and Augmented Reality (2011): 169-172.
+                    </li>
+                    <li>
+                    	[2] Hilsmann A., Eisert P. (2009) Tracking and Retexturing Cloth for Real-Time Virtual Clothing Applications. In: Gagalowicz A., Philips W. (eds) Computer Vision/Computer Graphics CollaborationTechniques. MIRAGE 2009. Lecture Notes in Computer Science, vol 5496. Springer, Berlin, Heidelberg
+                    </li>
+                </p> 
             </div>
         </div>
     </div>
