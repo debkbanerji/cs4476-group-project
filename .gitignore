@@ -1,3 +1,5 @@
 # Intellij based IDEs
 
 .idea
+.DS_Store
+*.pyc
