@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def resize(image, targetShape):
+def resize(image, targetShape, backgroundPixel=None):
     image = np.array(image)
     inputShape = image.shape
 
@@ -12,30 +12,34 @@ def resize(image, targetShape):
 
     imageContainer[:inputShape[0], :inputShape[1]] = image
 
-    getEnergyImage(energyImageContainer, imageContainer, imageContainer.shape)
+    getEnergyImage(energyImageContainer, imageContainer, imageContainer.shape, backgroundPixel)
+
+    plt.imshow(energyImageContainer)
+    plt.colorbar()
+    plt.show()
 
     currShape = [inputShape[0], inputShape[1]]
 
     while currShape[0] > targetShape[0]:
         print('reducing height: ' + str(
             currShape[0] - targetShape[0]) + ' iterations left')  # TODO: Find better way to log progress
-        reduceHeight(imageContainer, energyImageContainer, currShape)
+        reduceHeight(imageContainer, energyImageContainer, currShape, backgroundPixel)
         currShape[0] -= 1
     while currShape[1] > targetShape[1]:
         print('reducing width: ' + str(
             currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
-        reduceWidth(imageContainer, energyImageContainer, currShape)
+        reduceWidth(imageContainer, energyImageContainer, currShape, backgroundPixel)
         currShape[1] -= 1
     residualEnergyImageContainer = np.zeros(shape=(imageContainer.shape[0], imageContainer.shape[1]), dtype=np.double)
     while currShape[0] < targetShape[0]:
         print('increasing height: ' + str(
             targetShape[0] - currShape[0]) + ' iterations left')  # TODO: Find better way to log progress
-        increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
+        increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape, backgroundPixel)
         currShape[0] += 1
     while currShape[1] < targetShape[1]:
         print('increasing width: ' + str(
             targetShape[1] - currShape[1]) + ' iterations left')  # TODO: Find better way to log progress
-        increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
+        increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape, backgroundPixel)
         currShape[1] += 1
     plt.imshow(residualEnergyImageContainer)
     plt.show()
@@ -44,7 +48,7 @@ def resize(image, targetShape):
     return outputImage
 
 
-def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
+def reduceWidth(imageContainer, energyImageContainer, currentImageShape, backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for i in range(0, currentImageShape[0]):
@@ -73,13 +77,14 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
 
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seamCol < currentImageShape[1] - 1:
-            energyImageContainer[row, seamCol] = getPixelEnergy(imageContainer, currentImageShape, row, seamCol)
+            energyImageContainer[row, seamCol] = getPixelEnergy(imageContainer, currentImageShape, row, seamCol,
+                                                                backgroundPixel)
         if 0 <= seamCol - 1 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol - 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                    seamCol - 1)
+                                                                    seamCol - 1, backgroundPixel)
 
 
-def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
+def reduceHeight(imageContainer, energyImageContainer, currentImageShape, backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for j in range(0, currentImageShape[1]):
@@ -107,13 +112,15 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
 
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seamRow < currentImageShape[0] - 1:
-            energyImageContainer[seamRow, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow, col)
+            energyImageContainer[seamRow, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow, col,
+                                                                backgroundPixel)
         if 0 <= seamRow - 1 < currentImageShape[0] - 1:
             energyImageContainer[seamRow - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow - 1,
-                                                                    col)
+                                                                    col, backgroundPixel)
 
 
-def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
+def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape,
+                  backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for i in range(0, currentImageShape[0]):
@@ -151,13 +158,14 @@ def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageConta
         # update pixels of energy image which were on or to the right of the duplicated seam
         if 0 <= seamCol + 1 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol + 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                    seamCol + 1)
+                                                                    seamCol + 1, backgroundPixel)
         if 0 <= seamCol + 2 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol + 2] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                    seamCol + 2)
+                                                                    seamCol + 2, backgroundPixel)
 
 
-def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
+def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape,
+                   backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for j in range(0, currentImageShape[1]):
@@ -194,19 +202,21 @@ def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageCont
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seamRow + 1 < currentImageShape[0] - 1:
             energyImageContainer[seamRow + 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 1,
-                                                                    col)
+                                                                    col, backgroundPixel)
         if 0 <= seamRow + 2 < currentImageShape[0] - 1:
             energyImageContainer[seamRow + 2, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 2,
-                                                                    col)
+                                                                    col, backgroundPixel)
 
 
-def getEnergyImage(energyImageContainer, imageContainer, imageShape):
+def getEnergyImage(energyImageContainer, imageContainer, imageShape, backgroundPixel):
     for i in range(0, imageShape[0]):
         for j in range(0, imageShape[1]):
-            energyImageContainer[i, j] = getPixelEnergy(imageContainer, imageShape, i, j)
+            energyImageContainer[i, j] = getPixelEnergy(imageContainer, imageShape, i, j, backgroundPixel)
 
 
-def getPixelEnergy(imageContainer, imageShape, i, j):
+def getPixelEnergy(imageContainer, imageShape, i, j, backgroundPixel):
+    if backgroundPixel is not None and getEnergyDiff(imageContainer[i, j], backgroundPixel) < 20:
+        return -1  # Mark the pixel as a background pixel
     energy = 0
     if i < imageShape[0] - 1:
         energy += getEnergyDiff(imageContainer[i, j], imageContainer[i + 1, j])

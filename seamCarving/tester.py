@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 from seamCarving import resize
 
 input_im_filename = 'black-shirt.jpg'
-input_im_filename = 'inputSeamCarvingPrague.jpg'
+# input_im_filename = 'inputSeamCarvingPrague.jpg'
 
 input_image = np.array(Image.open(input_im_filename))
 
 plt.imshow(input_image)
 plt.show()
 
-output_image = resize(input_image, (input_image.shape[0] + 100, input_image.shape[1]))
+output_image = resize(input_image, (input_image.shape[0] + 100, input_image.shape[1]), backgroundPixel=(255, 255, 255))
 
 f, subplot = plt.subplots(1, 2)
 
