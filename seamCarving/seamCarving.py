@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def resize(image, targetShape):
@@ -16,11 +17,13 @@ def resize(image, targetShape):
     currShape = [inputShape[0], inputShape[1]]
 
     while currShape[0] > targetShape[0]:
-        print('reducing height: ' + str(currShape[0] - targetShape[0]) + ' iterations left')
+        print('reducing height: ' + str(
+            currShape[0] - targetShape[0]) + ' iterations left')  # TODO: Find better way to log progress
         reduceHeight(imageContainer, energyImageContainer, currShape)
         currShape[0] -= 1
     while currShape[1] > targetShape[1]:
-        print('reducing width: ' + str(currShape[1] - targetShape[1]) + ' iterations left')
+        print('reducing width: ' + str(
+            currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         reduceWidth(imageContainer, energyImageContainer, currShape)
         currShape[1] -= 1
     while currShape[0] < targetShape[0]:
@@ -35,8 +38,6 @@ def resize(image, targetShape):
 
 
 def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
-    # First find the cumulative energy map from the top
-
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for i in range(0, currentImageShape[0]):
@@ -51,6 +52,9 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
 
             M[i, j] = energyImageContainer[i, j] + minTopEnergy
 
+    # plt.imshow(M)
+    # plt.show()
+
     seam = find_optimal_vertical_seam(M)
 
     for row in range(0, currentImageShape[0]):
@@ -61,8 +65,9 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
             imageContainer[row, col - 1] = imageContainer[row, col]
             energyImageContainer[row, col - 1] = energyImageContainer[row, col]
         imageContainer[row, currentImageShape[1] - 1] = [0, 0, 0]
+        energyImageContainer[row, currentImageShape[1] - 1] = 0
 
-        # update pixels of energy image which were formerly adjacent tot he removed seam
+        # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seam_col < currentImageShape[1] - 1:
             energyImageContainer[row, seam_col] = get_pixel_energy(imageContainer, currentImageShape, row, seam_col)
         if 0 <= seam_col - 1 < currentImageShape[1] - 1:
@@ -71,7 +76,37 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
 
 
 def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
-    # TODO: Implement
+    M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
+
+    for j in range(0, currentImageShape[1]):
+        for i in range(0, currentImageShape[0]):
+            minLeftEnergy = 0
+            if j > 0:
+                minLeftEnergy = M[i, j - 1]
+                if i > 0:
+                    minLeftEnergy = min(minLeftEnergy, M[i - 1, j - 1])
+                if i < currentImageShape[0] - 1:
+                    minLeftEnergy = min(minLeftEnergy, M[i + 1, j - 1])
+            M[i, j] = energyImageContainer[i, j] + minLeftEnergy
+
+    seam = find_optimal_horizontal_seam(M)
+
+    for col in range(0, currentImageShape[1]):
+        seam_row = seam[col]
+
+        # shift everything past this row
+        for row in range(seam_row + 1, currentImageShape[0]):
+            imageContainer[row - 1, col] = imageContainer[row, col]
+            energyImageContainer[row - 1, col] = energyImageContainer[row, col]
+        imageContainer[currentImageShape[0] - 1, col] = [0, 0, 0]
+        energyImageContainer[currentImageShape[0] - 1, col] = 0
+
+        # update pixels of energy image which were formerly adjacent to the removed seam
+        if 0 <= seam_row < currentImageShape[0] - 1:
+            energyImageContainer[seam_row, col] = get_pixel_energy(imageContainer, currentImageShape, seam_row, col)
+        if 0 <= seam_row - 1 < currentImageShape[0] - 1:
+            energyImageContainer[seam_row - 1, col] = get_pixel_energy(imageContainer, currentImageShape, seam_row - 1,
+                                                                       col)
     pass
 
 

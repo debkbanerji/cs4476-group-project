@@ -11,7 +11,7 @@ input_image = np.array(Image.open(input_im_filename))
 plt.imshow(input_image)
 plt.show()
 
-output_image = resize(input_image, (480, 540))
+output_image = resize(input_image, (input_image.shape[0] - 100, input_image.shape[1]))
 
 f, subplot = plt.subplots(1, 2)
 
