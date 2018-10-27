@@ -7,12 +7,11 @@ from seamCarving import resize
 input_im_filename = 'inputSeamCarvingPrague.jpg'
 
 input_image = np.array(Image.open(input_im_filename))
-print(input_image.shape)
 
 plt.imshow(input_image)
 plt.show()
 
-output_image = resize(input_image, (480, 780))
+output_image = resize(input_image, (480, 540))
 
 f, subplot = plt.subplots(1, 2)
 
