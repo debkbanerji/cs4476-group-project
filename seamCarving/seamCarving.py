@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 def resize(image, targetShape):
     image = np.array(image)
     inputShape = image.shape
@@ -77,7 +76,7 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
             energyImageContainer[row, seamCol] = getPixelEnergy(imageContainer, currentImageShape, row, seamCol)
         if 0 <= seamCol - 1 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol - 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seamCol - 1)
+                                                                    seamCol - 1)
 
 
 def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
@@ -111,7 +110,7 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
             energyImageContainer[seamRow, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow, col)
         if 0 <= seamRow - 1 < currentImageShape[0] - 1:
             energyImageContainer[seamRow - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow - 1,
-                                                                     col)
+                                                                    col)
 
 
 def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
@@ -129,6 +128,9 @@ def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageConta
 
             M[i, j] = energyImageContainer[i, j] + residualEnergyImageContainer[i, j] + minTopEnergy
 
+    # decay residualEnergyImageContainer
+    residualEnergyImageContainer *= 0.99
+
     maxEnergy = energyImageContainer.max()
 
     seam = findOptimalVerticalSeam(M)
@@ -142,21 +144,20 @@ def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageConta
             energyImageContainer[row, col] = energyImageContainer[row, col - 1]
             residualEnergyImageContainer[row, col] = residualEnergyImageContainer[row, col - 1]
 
-        # mark this column in residualEnergyImageContainer so we don't duplicate it again
+        # mark this seam in residualEnergyImageContainer so we don't duplicate it again
         residualEnergyImageContainer[row, seamCol] = maxEnergy
         residualEnergyImageContainer[row, seamCol + 1] = maxEnergy
 
         # update pixels of energy image which were on or to the right of the duplicated seam
         if 0 <= seamCol + 1 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol + 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seamCol + 1)
+                                                                    seamCol + 1)
         if 0 <= seamCol + 2 < currentImageShape[1] - 1:
             energyImageContainer[row, seamCol + 2] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seamCol + 2)
+                                                                    seamCol + 2)
 
 
 def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
-    # TODO: account for and update residualEnergyImageContainer with energy increase due to duplication
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for j in range(0, currentImageShape[1]):
@@ -168,7 +169,12 @@ def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageCont
                     minLeftEnergy = min(minLeftEnergy, M[i - 1, j - 1])
                 if i < currentImageShape[0] - 1:
                     minLeftEnergy = min(minLeftEnergy, M[i + 1, j - 1])
-            M[i, j] = energyImageContainer[i, j] + minLeftEnergy
+            M[i, j] = energyImageContainer[i, j] + residualEnergyImageContainer[i, j] + minLeftEnergy
+
+    # decay residualEnergyImageContainer
+    residualEnergyImageContainer *= 0.99
+
+    maxEnergy = energyImageContainer.max()
 
     seam = findOptimalHorizontalSeam(M)
 
@@ -179,14 +185,19 @@ def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageCont
         for row in reversed(range(seamRow + 1, currentImageShape[0] + 1)):
             imageContainer[row, col] = imageContainer[row - 1, col]
             energyImageContainer[row, col] = energyImageContainer[row - 1, col]
+            residualEnergyImageContainer[row, col] = residualEnergyImageContainer[row - 1, col]
+
+        # mark this seam in residualEnergyImageContainer so we don't duplicate it again
+        residualEnergyImageContainer[seamRow, col] = maxEnergy
+        residualEnergyImageContainer[seamRow + 1, col] = maxEnergy
 
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seamRow + 1 < currentImageShape[0] - 1:
             energyImageContainer[seamRow + 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 1,
-                                                                     col)
+                                                                    col)
         if 0 <= seamRow + 2 < currentImageShape[0] - 1:
             energyImageContainer[seamRow + 2, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 2,
-                                                                     col)
+                                                                    col)
 
 
 def getEnergyImage(energyImageContainer, imageContainer, imageShape):
