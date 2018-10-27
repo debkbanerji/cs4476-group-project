@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 
 def resize(image, targetShape):
@@ -36,6 +38,8 @@ def resize(image, targetShape):
             targetShape[1] - currShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
         currShape[1] += 1
+    plt.imshow(residualEnergyImageContainer)
+    plt.show()
 
     outputImage = imageContainer[:targetShape[0], :targetShape[1]]
     return outputImage
@@ -59,21 +63,21 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
     seam = findOptimalVerticalSeam(M)
 
     for row in range(0, currentImageShape[0]):
-        seam_col = seam[row]
+        seamCol = seam[row]
 
         # shift everything past this column
-        for col in range(seam_col + 1, currentImageShape[1]):
+        for col in range(seamCol + 1, currentImageShape[1]):
             imageContainer[row, col - 1] = imageContainer[row, col]
             energyImageContainer[row, col - 1] = energyImageContainer[row, col]
         imageContainer[row, currentImageShape[1] - 1] = [0, 0, 0]
         energyImageContainer[row, currentImageShape[1] - 1] = 0
 
         # update pixels of energy image which were formerly adjacent to the removed seam
-        if 0 <= seam_col < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col] = getPixelEnergy(imageContainer, currentImageShape, row, seam_col)
-        if 0 <= seam_col - 1 < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col - 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seam_col - 1)
+        if 0 <= seamCol < currentImageShape[1] - 1:
+            energyImageContainer[row, seamCol] = getPixelEnergy(imageContainer, currentImageShape, row, seamCol)
+        if 0 <= seamCol - 1 < currentImageShape[1] - 1:
+            energyImageContainer[row, seamCol - 1] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seamCol - 1)
 
 
 def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
@@ -93,25 +97,24 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
     seam = findOptimalHorizontalSeam(M)
 
     for col in range(0, currentImageShape[1]):
-        seam_row = seam[col]
+        seamRow = seam[col]
 
         # shift everything past this row
-        for row in range(seam_row + 1, currentImageShape[0]):
+        for row in range(seamRow + 1, currentImageShape[0]):
             imageContainer[row - 1, col] = imageContainer[row, col]
             energyImageContainer[row - 1, col] = energyImageContainer[row, col]
         imageContainer[currentImageShape[0] - 1, col] = [0, 0, 0]
         energyImageContainer[currentImageShape[0] - 1, col] = 0
 
         # update pixels of energy image which were formerly adjacent to the removed seam
-        if 0 <= seam_row < currentImageShape[0] - 1:
-            energyImageContainer[seam_row, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row, col)
-        if 0 <= seam_row - 1 < currentImageShape[0] - 1:
-            energyImageContainer[seam_row - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row - 1,
+        if 0 <= seamRow < currentImageShape[0] - 1:
+            energyImageContainer[seamRow, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow, col)
+        if 0 <= seamRow - 1 < currentImageShape[0] - 1:
+            energyImageContainer[seamRow - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow - 1,
                                                                      col)
 
 
 def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
-    # TODO: account for and update residualEnergyImageContainer with energy increase due to duplication
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for i in range(0, currentImageShape[0]):
@@ -124,25 +127,32 @@ def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageConta
                 if j < currentImageShape[1] - 1:
                     minTopEnergy = min(minTopEnergy, M[i - 1, j + 1])
 
-            M[i, j] = energyImageContainer[i, j] + minTopEnergy
+            M[i, j] = energyImageContainer[i, j] + residualEnergyImageContainer[i, j] + minTopEnergy
+
+    maxEnergy = energyImageContainer.max()
 
     seam = findOptimalVerticalSeam(M)
 
     for row in range(0, currentImageShape[0]):
-        seam_col = seam[row]
+        seamCol = seam[row]
 
         # shift everything past this column (duplicating lowest energy seam on the right)
-        for col in reversed(range(seam_col + 1, currentImageShape[1] + 1)):
+        for col in reversed(range(seamCol + 1, currentImageShape[1] + 1)):
             imageContainer[row, col] = imageContainer[row, col - 1]
             energyImageContainer[row, col] = energyImageContainer[row, col - 1]
+            residualEnergyImageContainer[row, col] = residualEnergyImageContainer[row, col - 1]
+
+        # mark this column in residualEnergyImageContainer so we don't duplicate it again
+        residualEnergyImageContainer[row, seamCol] = maxEnergy
+        residualEnergyImageContainer[row, seamCol + 1] = maxEnergy
 
         # update pixels of energy image which were on or to the right of the duplicated seam
-        if 0 <= seam_col + 1 < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col + 1] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seam_col + 1)
-        if 0 <= seam_col + 2 < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col + 2] = getPixelEnergy(imageContainer, currentImageShape, row,
-                                                                     seam_col + 2)
+        if 0 <= seamCol + 1 < currentImageShape[1] - 1:
+            energyImageContainer[row, seamCol + 1] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seamCol + 1)
+        if 0 <= seamCol + 2 < currentImageShape[1] - 1:
+            energyImageContainer[row, seamCol + 2] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seamCol + 2)
 
 
 def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
@@ -163,19 +173,19 @@ def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageCont
     seam = findOptimalHorizontalSeam(M)
 
     for col in range(0, currentImageShape[1]):
-        seam_row = seam[col]
+        seamRow = seam[col]
 
         # shift everything past this row (duplicating lowest energy seam on the bottom)
-        for row in reversed(range(seam_row + 1, currentImageShape[0] + 1)):
+        for row in reversed(range(seamRow + 1, currentImageShape[0] + 1)):
             imageContainer[row, col] = imageContainer[row - 1, col]
             energyImageContainer[row, col] = energyImageContainer[row - 1, col]
 
         # update pixels of energy image which were formerly adjacent to the removed seam
-        if 0 <= seam_row + 1 < currentImageShape[0] - 1:
-            energyImageContainer[seam_row + 1, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row + 1,
+        if 0 <= seamRow + 1 < currentImageShape[0] - 1:
+            energyImageContainer[seamRow + 1, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 1,
                                                                      col)
-        if 0 <= seam_row + 2 < currentImageShape[0] - 1:
-            energyImageContainer[seam_row + 2, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row + 2,
+        if 0 <= seamRow + 2 < currentImageShape[0] - 1:
+            energyImageContainer[seamRow + 2, col] = getPixelEnergy(imageContainer, currentImageShape, seamRow + 2,
                                                                      col)
 
 
