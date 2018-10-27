@@ -11,7 +11,7 @@ def resize(image, targetShape):
 
     imageContainer[:inputShape[0], :inputShape[1]] = image
 
-    energy_image(energyImageContainer, imageContainer, imageContainer.shape)
+    getEnergyImage(energyImageContainer, imageContainer, imageContainer.shape)
 
     currShape = [inputShape[0], inputShape[1]]
 
@@ -25,15 +25,16 @@ def resize(image, targetShape):
             currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         reduceWidth(imageContainer, energyImageContainer, currShape)
         currShape[1] -= 1
+    residualEnergyImageContainer = np.zeros(shape=(imageContainer.shape[0], imageContainer.shape[1]), dtype=np.double)
     while currShape[0] < targetShape[0]:
         print('increasing height: ' + str(
             currShape[0] - targetShape[0]) + ' iterations left')  # TODO: Find better way to log progress
-        increaseHeight(imageContainer, energyImageContainer, currShape)
+        increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
         currShape[0] += 1
     while currShape[1] < targetShape[1]:
         print('increasing width: ' + str(
             currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
-        increaseWidth(imageContainer, energyImageContainer, currShape)
+        increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
         currShape[1] += 1
 
     outputImage = imageContainer[:targetShape[0], :targetShape[1]]
@@ -55,10 +56,7 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
 
             M[i, j] = energyImageContainer[i, j] + minTopEnergy
 
-    # plt.imshow(M)
-    # plt.show()
-
-    seam = find_optimal_vertical_seam(M)
+    seam = findOptimalVerticalSeam(M)
 
     for row in range(0, currentImageShape[0]):
         seam_col = seam[row]
@@ -72,10 +70,10 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape):
 
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seam_col < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col] = get_pixel_energy(imageContainer, currentImageShape, row, seam_col)
+            energyImageContainer[row, seam_col] = getPixelEnergy(imageContainer, currentImageShape, row, seam_col)
         if 0 <= seam_col - 1 < currentImageShape[1] - 1:
-            energyImageContainer[row, seam_col - 1] = get_pixel_energy(imageContainer, currentImageShape, row,
-                                                                       seam_col - 1)
+            energyImageContainer[row, seam_col - 1] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seam_col - 1)
 
 
 def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
@@ -92,7 +90,7 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
                     minLeftEnergy = min(minLeftEnergy, M[i + 1, j - 1])
             M[i, j] = energyImageContainer[i, j] + minLeftEnergy
 
-    seam = find_optimal_horizontal_seam(M)
+    seam = findOptimalHorizontalSeam(M)
 
     for col in range(0, currentImageShape[1]):
         seam_row = seam[col]
@@ -106,35 +104,35 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
 
         # update pixels of energy image which were formerly adjacent to the removed seam
         if 0 <= seam_row < currentImageShape[0] - 1:
-            energyImageContainer[seam_row, col] = get_pixel_energy(imageContainer, currentImageShape, seam_row, col)
+            energyImageContainer[seam_row, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row, col)
         if 0 <= seam_row - 1 < currentImageShape[0] - 1:
-            energyImageContainer[seam_row - 1, col] = get_pixel_energy(imageContainer, currentImageShape, seam_row - 1,
-                                                                       col)
+            energyImageContainer[seam_row - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row - 1,
+                                                                     col)
     pass
 
 
-def increaseWidth(imageContainer, energyImageContainer, currentImageShape):
+def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
     # TODO: Implement
     pass
 
 
-def increaseHeight(imageContainer, energyImageContainer, currentImageShape):
+def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
     # TODO: Implement
     pass
 
 
-def energy_image(energyImageContainer, imageContainer, imageShape):
+def getEnergyImage(energyImageContainer, imageContainer, imageShape):
     for i in range(0, imageShape[0]):
         for j in range(0, imageShape[1]):
-            energyImageContainer[i, j] = get_pixel_energy(imageContainer, imageShape, i, j)
+            energyImageContainer[i, j] = getPixelEnergy(imageContainer, imageShape, i, j)
 
 
-def get_pixel_energy(imageContainer, imageShape, i, j):
+def getPixelEnergy(imageContainer, imageShape, i, j):
     energy = 0
     if i < imageShape[0] - 1:
-        energy += energy_diff(imageContainer[i, j], imageContainer[i + 1, j])
+        energy += getEnergyDiff(imageContainer[i, j], imageContainer[i + 1, j])
     if j < imageShape[1] - 1:
-        energy += energy_diff(imageContainer[i, j], imageContainer[i, j + 1])
+        energy += getEnergyDiff(imageContainer[i, j], imageContainer[i, j + 1])
 
     # From a single pixel, it is better to calculate the difference in energy backwards as well as forwards,
     # since this gives us a more accurate idea of what the change in value between a pixel and its surrounding
@@ -143,13 +141,13 @@ def get_pixel_energy(imageContainer, imageShape, i, j):
     # the potential doubling in magnitude doesn't matter since we're only
     # comparing these values to other values computed in the same way
     if i > 0:
-        energy += energy_diff(imageContainer[i, j], imageContainer[i - 1, j])
+        energy += getEnergyDiff(imageContainer[i, j], imageContainer[i - 1, j])
     if j > 0:
-        energy += energy_diff(imageContainer[i, j], imageContainer[i, j - 1])
+        energy += getEnergyDiff(imageContainer[i, j], imageContainer[i, j - 1])
     return energy
 
 
-def energy_diff(p1, p2):
+def getEnergyDiff(p1, p2):
     # Note: for calculating energy, we're adding up the difference in values between red, blue and
     # green between the two pixels
     #
@@ -163,7 +161,7 @@ def energy_diff(p1, p2):
     return diff
 
 
-def find_optimal_vertical_seam(cumulativeEnergyMap):
+def findOptimalVerticalSeam(cumulativeEnergyMap):
     result = []
     inputShape = cumulativeEnergyMap.shape
     currPoint = [inputShape[0] - 1, 0]
@@ -186,7 +184,7 @@ def find_optimal_vertical_seam(cumulativeEnergyMap):
     return result
 
 
-def find_optimal_horizontal_seam(cumulativeEnergyMap):
+def findOptimalHorizontalSeam(cumulativeEnergyMap):
     result = []
     inputShape = cumulativeEnergyMap.shape
     currPoint = [0, inputShape[1] - 1]
