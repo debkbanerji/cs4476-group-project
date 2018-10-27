@@ -28,12 +28,12 @@ def resize(image, targetShape):
     residualEnergyImageContainer = np.zeros(shape=(imageContainer.shape[0], imageContainer.shape[1]), dtype=np.double)
     while currShape[0] < targetShape[0]:
         print('increasing height: ' + str(
-            currShape[0] - targetShape[0]) + ' iterations left')  # TODO: Find better way to log progress
+            targetShape[0] - currShape[0]) + ' iterations left')  # TODO: Find better way to log progress
         increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
         currShape[0] += 1
     while currShape[1] < targetShape[1]:
         print('increasing width: ' + str(
-            currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
+            targetShape[1] - currShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape)
         currShape[1] += 1
 
@@ -108,16 +108,46 @@ def reduceHeight(imageContainer, energyImageContainer, currentImageShape):
         if 0 <= seam_row - 1 < currentImageShape[0] - 1:
             energyImageContainer[seam_row - 1, col] = getPixelEnergy(imageContainer, currentImageShape, seam_row - 1,
                                                                      col)
-    pass
 
 
 def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
-    # TODO: Implement
-    pass
+    # TODO: account for and update residualEnergyImageContainer with energy increase due to duplication
+    M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
+
+    for i in range(0, currentImageShape[0]):
+        for j in range(0, currentImageShape[1]):
+            minTopEnergy = 0
+            if i > 0:
+                minTopEnergy = M[i - 1, j]
+                if j > 0:
+                    minTopEnergy = min(minTopEnergy, M[i - 1, j - 1])
+                if j < currentImageShape[1] - 1:
+                    minTopEnergy = min(minTopEnergy, M[i - 1, j + 1])
+
+            M[i, j] = energyImageContainer[i, j] + minTopEnergy
+
+    seam = findOptimalVerticalSeam(M)
+
+    for row in range(0, currentImageShape[0]):
+        seam_col = seam[row]
+
+        # shift everything past this column (duplicating lowest energy seam on the right)
+        for col in reversed(range(seam_col + 1, currentImageShape[1] + 1)):
+            imageContainer[row, col] = imageContainer[row, col - 1]
+            energyImageContainer[row, col] = energyImageContainer[row, col - 1]
+
+        # update pixels of energy image which were on or to the right of the duplicated seam
+        if 0 <= seam_col + 1 < currentImageShape[1] - 1:
+            energyImageContainer[row, seam_col + 1] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seam_col + 1)
+        if 0 <= seam_col + 2 < currentImageShape[1] - 1:
+            energyImageContainer[row, seam_col + 2] = getPixelEnergy(imageContainer, currentImageShape, row,
+                                                                     seam_col + 2)
 
 
 def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape):
-    # TODO: Implement
+    # TODO: account for and update residualEnergyImageContainer with energy increase due to duplication
+    
     pass
 
 
