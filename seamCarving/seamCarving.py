@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def resize(image, targetShape):
@@ -27,9 +26,13 @@ def resize(image, targetShape):
         reduceWidth(imageContainer, energyImageContainer, currShape)
         currShape[1] -= 1
     while currShape[0] < targetShape[0]:
+        print('increasing height: ' + str(
+            currShape[0] - targetShape[0]) + ' iterations left')  # TODO: Find better way to log progress
         increaseHeight(imageContainer, energyImageContainer, currShape)
         currShape[0] += 1
     while currShape[1] < targetShape[1]:
+        print('increasing width: ' + str(
+            currShape[1] - targetShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         increaseWidth(imageContainer, energyImageContainer, currShape)
         currShape[1] += 1
 
