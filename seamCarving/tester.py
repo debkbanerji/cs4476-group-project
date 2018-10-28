@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 
 from seamCarving import resize
 
-input_im_filename = 'black-shirt.jpg'
-# input_im_filename = 'inputSeamCarvingPrague.jpg'
+input_im_filename = 'resize-test-shirt.jpg'
 
 input_image = np.array(Image.open(input_im_filename))
 
