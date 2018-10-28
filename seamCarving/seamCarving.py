@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def resize(image, targetShape, backgroundPixel=None):
@@ -13,10 +12,6 @@ def resize(image, targetShape, backgroundPixel=None):
     imageContainer[:inputShape[0], :inputShape[1]] = image
 
     getEnergyImage(energyImageContainer, imageContainer, imageContainer.shape, backgroundPixel)
-
-    plt.imshow(energyImageContainer)
-    plt.colorbar()
-    plt.show()
 
     currShape = [inputShape[0], inputShape[1]]
 
@@ -41,8 +36,6 @@ def resize(image, targetShape, backgroundPixel=None):
             targetShape[1] - currShape[1]) + ' iterations left')  # TODO: Find better way to log progress
         increaseWidth(imageContainer, energyImageContainer, residualEnergyImageContainer, currShape, backgroundPixel)
         currShape[1] += 1
-    plt.imshow(residualEnergyImageContainer)
-    plt.show()
 
     outputImage = imageContainer[:targetShape[0], :targetShape[1]]
     return outputImage
@@ -70,7 +63,7 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape, backgro
                 MCount[i, j] = 1 + (0 if energyImageContainer[i, j] == -1 else 1)
                 # always add in 1 for normalization to prevent divide by 0 errors
 
-    seam = findOptimalVerticalSeam(M/MCount)
+    seam = findOptimalVerticalSeam(M / MCount)
 
     for row in range(0, currentImageShape[0]):
         seamCol = seam[row]
@@ -93,19 +86,27 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape, backgro
 
 def reduceHeight(imageContainer, energyImageContainer, currentImageShape, backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
+    MCount = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for j in range(0, currentImageShape[1]):
         for i in range(0, currentImageShape[0]):
-            minLeftEnergy = 0
             if j > 0:
-                minLeftEnergy = M[i, j - 1]
-                if i > 0:
-                    minLeftEnergy = min(minLeftEnergy, M[i - 1, j - 1])
-                if i < currentImageShape[0] - 1:
-                    minLeftEnergy = min(minLeftEnergy, M[i + 1, j - 1])
-            M[i, j] = energyImageContainer[i, j] + minLeftEnergy
+                minLeftIndex = i
+                if i > 0 and M[minLeftIndex, j - 1] / MCount[minLeftIndex, j - 1] \
+                        > M[i - 1, j - 1] / MCount[i - 1, j - 1]:
+                    minLeftIndex = i - 1
+                if i < currentImageShape[0] - 1 and M[minLeftIndex, j - 1] / MCount[minLeftIndex, j - 1] \
+                        > M[i + 1, j - 1] / MCount[i + 1, j - 1]:
+                    minLeftIndex = i + 1
+                M[i, j] = max(energyImageContainer[i, j], 0) + M[
+                    minLeftIndex, j - 1]
+                MCount[i, j] = MCount[minLeftIndex, j - 1] + (0 if energyImageContainer[i, j] == -1 else 1)
+            else:
+                M[i, j] = max(energyImageContainer[i, j], 0)
+                MCount[i, j] = 1 + (0 if energyImageContainer[i, j] == -1 else 1)
+                # always add in 1 for normalization to prevent divide by 0 errors
 
-    seam = findOptimalHorizontalSeam(M)
+    seam = findOptimalHorizontalSeam(M / MCount)
 
     for col in range(0, currentImageShape[1]):
         seamRow = seam[col]
