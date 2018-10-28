@@ -21,6 +21,7 @@ class SeamApp(QWidget):
         self.referenceImageList = [("./images/referenceLeftSleeve.png", "leftSleeve"),
                                     ("./images/referenceRightSleeve.png", "rightSleeve"),
                                     ("./images/referenceTorso.png", "torso")]
+        self.collectingTShirtPts = False
 
         self.referenceWidgetList = [ImageWidget(s[0]) for s in self.referenceImageList]
 
@@ -54,10 +55,16 @@ class SeamApp(QWidget):
             # self.layout.addWidget(self.submitButton)
             self.currentRefImage += 1
             self.currentRefImage %= len(self.referenceImageList)
-            print(self.currentRefImage)
+            print(self.referenceImageList[self.currentRefImage][1])
             if self.currentRefImage != 0: # wrap around to the beginning again
-                self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage],
-                                            self.referenceImageList[self.currentRefImage][1])
+                if self.collectingTShirtPts:
+                    file_name = "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1]
+                    self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage],
+                                            file_name)
+                else:
+                    self.collectCorrespondences(self.currentImageName,
+                    self.referenceWidgetList[self.currentRefImage],
+                    self.referenceImageList[self.currentRefImage][1])
             else:
                 if self.countShirts == 0:
                     self.addShirt()
@@ -73,6 +80,7 @@ class SeamApp(QWidget):
 
     def addShirt(self):
         self.currentImageName = self.openImageFileDialog("Select image of your T-Shirt")
+        self.collectingTShirtPts = True
         if self.currentImageName is not None:
             self.countShirts += 1
         self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage],
