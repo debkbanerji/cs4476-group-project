@@ -167,17 +167,25 @@ def increaseWidth(imageContainer, energyImageContainer, residualEnergyImageConta
 def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageContainer, currentImageShape,
                    backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
+    MCount = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for j in range(0, currentImageShape[1]):
         for i in range(0, currentImageShape[0]):
-            minLeftEnergy = 0
             if j > 0:
-                minLeftEnergy = M[i, j - 1]
-                if i > 0:
-                    minLeftEnergy = min(minLeftEnergy, M[i - 1, j - 1])
-                if i < currentImageShape[0] - 1:
-                    minLeftEnergy = min(minLeftEnergy, M[i + 1, j - 1])
-            M[i, j] = energyImageContainer[i, j] + residualEnergyImageContainer[i, j] + minLeftEnergy
+                minLeftIndex = i
+                if i > 0 and M[minLeftIndex, j - 1] / MCount[minLeftIndex, j - 1] \
+                        > M[i - 1, j - 1] / MCount[i - 1, j - 1]:
+                    minLeftIndex = i - 1
+                if i < currentImageShape[0] - 1 and M[minLeftIndex, j - 1] / MCount[minLeftIndex, j - 1] \
+                        > M[i + 1, j - 1] / MCount[i + 1, j - 1]:
+                    minLeftIndex = i + 1
+                M[i, j] = max(energyImageContainer[i, j], 0) + residualEnergyImageContainer[i, j] + M[
+                    minLeftIndex, j - 1]
+                MCount[i, j] = MCount[minLeftIndex, j - 1] + (0 if energyImageContainer[i, j] == -1 else 1)
+            else:
+                M[i, j] = max(energyImageContainer[i, j], 0) + residualEnergyImageContainer[i, j]
+                MCount[i, j] = 1 + (0 if energyImageContainer[i, j] == -1 else 1)
+                # always add in 1 for normalization to prevent divide by 0 errors?
 
     # decay residualEnergyImageContainer
     residualEnergyImageContainer *= 0.99
