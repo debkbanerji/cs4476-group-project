@@ -192,7 +192,7 @@ def increaseHeight(imageContainer, energyImageContainer, residualEnergyImageCont
 
     maxEnergy = energyImageContainer.max()
 
-    seam = findOptimalHorizontalSeam(M)
+    seam = findOptimalHorizontalSeam(M / MCount)
 
     for col in range(0, currentImageShape[1]):
         seamRow = seam[col]
