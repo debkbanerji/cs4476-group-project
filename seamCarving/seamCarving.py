@@ -50,20 +50,27 @@ def resize(image, targetShape, backgroundPixel=None):
 
 def reduceWidth(imageContainer, energyImageContainer, currentImageShape, backgroundPixel):
     M = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
+    MCount = np.zeros(shape=(currentImageShape[0], currentImageShape[1]), dtype=np.double)
 
     for i in range(0, currentImageShape[0]):
         for j in range(0, currentImageShape[1]):
-            minTopEnergy = 0
             if i > 0:
-                minTopEnergy = M[i - 1, j]
-                if j > 0:
-                    minTopEnergy = min(minTopEnergy, M[i - 1, j - 1])
-                if j < currentImageShape[1] - 1:
-                    minTopEnergy = min(minTopEnergy, M[i - 1, j + 1])
+                minTopIndex = j
+                if j > 0 and M[i - 1, minTopIndex] / MCount[i - 1, minTopIndex] \
+                        > M[i - 1, j - 1] / MCount[i - 1, j - 1]:
+                    minTopIndex = j - 1
+                if j < currentImageShape[1] - 1 and M[i - 1, minTopIndex] / MCount[i - 1, minTopIndex] \
+                        > M[i - 1, j + 1] / MCount[i - 1, j + 1]:
+                    minTopIndex = j + 1
+                M[i, j] = max(energyImageContainer[i, j], 0) + M[
+                    i - 1, minTopIndex]
+                MCount[i, j] = MCount[i - 1, minTopIndex] + (0 if energyImageContainer[i, j] == -1 else 1)
+            else:
+                M[i, j] = max(energyImageContainer[i, j], 0)
+                MCount[i, j] = 1 + (0 if energyImageContainer[i, j] == -1 else 1)
+                # always add in 1 for normalization to prevent divide by 0 errors
 
-            M[i, j] = energyImageContainer[i, j] + minTopEnergy
-
-    seam = findOptimalVerticalSeam(M)
+    seam = findOptimalVerticalSeam(M/MCount)
 
     for row in range(0, currentImageShape[0]):
         seamCol = seam[row]
