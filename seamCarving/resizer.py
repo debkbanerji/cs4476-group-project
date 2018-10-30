@@ -1,8 +1,8 @@
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-
 from seamCarving import resize
+import math
 
 def testResize():
 
@@ -25,13 +25,10 @@ def testResize():
 
     plt.show()
 
-def resizeShirt():
+def resizeShirt(input_image):
 
     shirt_torsoPoints = np.load('../pipelining/t_shirt1torsoPoints.npy')
     body_torsoPoints = np.load('../pipelining/torsoPoints.npy')
-
-    input_im_filename = 'resize-test-shirt.jpg'
-    input_image = np.array(Image.open(input_im_filename))
 
     shirt_highestPoint = (shirt_torsoPoints[0,1] if shirt_torsoPoints[0,1] < shirt_torsoPoints[1,1] else shirt_torsoPoints[1,1])
     shirt_lowestPoint = (shirt_torsoPoints[4,1] if shirt_torsoPoints[4,1] > shirt_torsoPoints[5,1] else shirt_torsoPoints[5,1])
@@ -57,8 +54,9 @@ def resizeShirt():
     # print(shirt_aspectRatio)
     # print(body_aspectRatio)
 
+    backgroundPixel = input_image[0, input_image.shape[1]-1] # top right corner
+
     # calculations for how to find necessary change in shirt width
-    # TODO: come up with better way to decide changes in x and y direction
     #  y/(x+??) = b/a
     #  ay = xb + ??b
     # (ay-xb)/b  = ??
@@ -66,13 +64,31 @@ def resizeShirt():
 
     deltaShirtWidth = int((body_width * shirt_height) / body_height) - shirt_width
 
-    backgroundPixel = input_image[0, input_image.shape[1]-1] # top right corner
-    output_image = resize(input_image, (input_image.shape[0], input_image.shape[1] + deltaShirtWidth), backgroundPixel=backgroundPixel)
+    # calculations for how to find necessary change in shirt height
+    #  (y+??)/(x) = b/a
+    #  ay + ??a = xb
+    #  ??a = xb - ay
+    #  ?? = (xb)/a - y
+
+    deltaShirtHeight = int((shirt_width * body_height)/body_width) - shirt_height
+
+    #based off smaller delta, resize the shirt
+
+    if (math.fabs(deltaShirtHeight) > math.fabs(deltaShirtWidth)):
+        #resize by adding width
+        output_image =  resize(input_image, (input_image.shape[0], input_image.shape[1] + deltaShirtWidth), backgroundPixel=backgroundPixel)
+    else:
+        #resize by adding height
+        output_image = resize(input_image, (input_image.shape[0] + deltaShirtHeight, input_image.shape[1]), backgroundPixel=backgroundPixel)
+
     plt.imsave('shirt_updatedAspectRatio.png', output_image)
 
 
 def main():
-    resizeShirt()
+
+    input_im_filename = 'resize-test-shirt.jpg'
+    input_image = np.array(Image.open(input_im_filename))
+    resizeShirt(input_image)
 
 if __name__ == "__main__":
     main();
