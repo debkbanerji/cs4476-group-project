@@ -62,6 +62,7 @@ def reduceWidth(imageContainer, energyImageContainer, currentImageShape, backgro
                 M[i, j] = max(energyImageContainer[i, j], 0)
                 MCount[i, j] = 1 + (0 if energyImageContainer[i, j] == -1 else 1)
                 # always add in 1 for normalization to prevent divide by 0 errors
+                # TODO: Use max(MCount value, 1) everywhere instead
 
     seam = findOptimalVerticalSeam(M / MCount)
 
