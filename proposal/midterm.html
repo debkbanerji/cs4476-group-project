@@ -68,9 +68,53 @@
                 <p>
                     One of the major problems that we wanted to address with our system is distortion caused by warping a piece of clothing onto the target wearer. This warping leads to unnatural distortion which is especially noticeable in the context of the image as a whole. For example, if a t-shirt of certain proportions is warped to fit a relatively tall and thin wearer, the homography transformation would warp the original image in a way that would cause noticeable distortion during stretching.
                 </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/homographyTransform.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Distorted T-shirt after Homography Transformation</p>
+                </div>
 
                 <p>
-                    //todo
+                    Looking closely at the image, one can see how the stretched resize has distorted the logo on the t-shirt (highlighted with the drawn pink lines). This is especially noticeable on the letter ‘C’ in the logo, an issue which would be much less natural looking at higher resolution. Furthermore, the shape of the sleeves is also distorted and unnatural looking.
+
+                    A solution to this would be to use seam carving. This preprocessing step aims to naturally reshape the piece of clothing in order to best match the transformation about to be carried out. This way, by using the reshaped piece of clothing instead, the distortion due to the transformation would be greatly reduced, and important features such as logos would be preserved. Unfortunately, the traditional seam carving algorithm from [1] was not especially useful when it came to reshaping the image of the piece of clothing, since the lowest energy pixels were background pixels, and so the background rather than the piece of clothing itself was extended or shrunk in each case. The output of this resizing on the same test case as before is shown below:
+
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/seamCarvingSuccess.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>T-shirt after running Seam Carving</p>
+                </div>
+                <p>
+                    This issue was slightly reduced by adding penalties to areas in which seams were duplicated, but after testing it became clear that this was not a very good fix as the size of the resulting clothing portion of the image would be unpredictable, since background pixels were still being used.
+
+                    We tested a fix that revolved around changing the energy function so that it assigned very high energy to background pixels, so that they would not be chosen as seams. Unfortunately, this led to the side effect of the algorithm disproportionately choosing seams with more non-background pixels than others, causing large amounts of distortion in areas such as sleeves.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/seamCarvingFail.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Sleeve Distortion</p>
+                </div>
+                <p>
+                    This sleeve distortion was caused by the algorithm’s tendency to prefer choosing horizontal seams with as few background pixels as possible.
+
+                    In order to account for this issue, our final seam carving algorithm needed to move beyond simply altering the energy function and had to instead intelligently choose seams based on minimum background interference.
+
+                    In order to do this, we reimplemented a more context aware version of the seam carving algorithm from scratch, one that used two dynamic programming tables instead of one. The original algorithm built the cumulative energy map based on previous table entries of a single table. Our algorithm, however, chooses seams based on the normalized energy of all the non-background pixels of previously calculated seams. In order to do this, it uses two tables.
+
+                    One of these tables tracks the total energy of the non-background pixels in the optimal seam ending at the corresponding entry of the table. (here, the ‘optimal seam’ is the one with the smallest normalized energy of non-background pixels) The other table tracks the number of non-background pixels in the optimal seam. The combination of previously calculated table entries from these two tables can be used to compute each new table entry of either table in constant time, using the recursive relationship that defines new table entries. Since a similar dynamic programming approach is being used, the asymptotic time and space complexity of the algorithm is the same, though extra space is used fo the second table. When finding the seam from this modified cumulative energy map, the map considered when backtracking consists of each entry of the total non-background pixel energy table divided by the corresponding entry of the pixel count table. This effectively means a normalized map of minimum cumulative non-background pixel energy values is passed to the find seam function, and the bias due to number of background pixels is eliminated. The results of this improved algorithm can be seen in the next image.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/improvedSeamCarving.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Improved Seam Carving</p>
+                </div>
+                <p>
+                    In order to allow for cleaner code and a faster runtime, we reimplemented all of the seam carving steps from scratch, altering them in order to accomodate our new approach. This new implementation creates containers large enough to work with the larger of the input and final images before carrying out the steps of the algorithm. This allows all intermediate steps to be efficiently carried out in place. Instead of copying the entire image to a new array during each seam change, efficient pixel shifting is employed instead. The same is done for the corresponding energy image, which is also updated on the fly so it does not need to be calculated. The result is that even though our algorithm should theoretically take longer to run due to the more complex dynamic programming procedure, in practice it is quite fast when compared to our regular seam carving implementations from earlier in the semester. For the given example (the black shirt) our new implementation was approximately five times as fast as both of the problem set 2 implementations we tested it against, despite the more complicated algorithm. This increase in speed was very useful to us, since it allowed us to test on a larger amount of data within a reasonable amount of time.
                 </p>
 
             </div>
