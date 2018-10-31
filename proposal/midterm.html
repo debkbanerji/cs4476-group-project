@@ -65,6 +65,22 @@
                 </p>
 
                 <h4> Seam Carving </h4>
+                <h5>Part A: Determining how much to resize the shirt by </h5>
+                <br>
+                <p>
+                  The underlying reason that we are trying to use seam carving when resizing the shirt is to avoid strange distortions in the shirt’s pattern or text when the homography is applied. In order to avoid these distortions the resizing of the shirt must be completed with the intent of making the aspect ratio of the shirt comparable to the aspect ratio of the example shirt provided in the input image of the user. By resizing the shirt to have similar width-to-height proportions as the figure of the user, we have reduced opportunities for a shirt’s logo or image to be distorted. In order to complete this task, we first identified key points on a shirt that would help us approximate the shirt’s aspect ratio. To do this, we used the correspondence points collected for the homography to determine the approximate width and height of the shirt.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/sizeDefinition.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Height was defined as the number of pixels from the collar line of the shirt to the bottom of the shirt. Width was defined as the number of pixels between each side of the torso. </p>
+                </div>
+                <p>
+                  Once the aspect ratio of the shirt and the user was determined, it was a matter of applying basic algebraic manipulation to calculate the necessary number of pixels that must be added/removed horizontally or vertically to the shirt. The interesting element to determining the required resize was in picking which would be preferable - changing the shirt in the y or x direction. For now, we calculate both possible manipulations to the shirt and pick the change that results in the least number of seams that must be added/removed.
+                </p>
+                <h5>Part B: Determining which seams to add/remove</h5>
+                <br>
                 <p>
                     One of the major problems that we wanted to address with our system is distortion caused by warping a piece of clothing onto the target wearer. This warping leads to unnatural distortion which is especially noticeable in the context of the image as a whole. For example, if a t-shirt of certain proportions is warped to fit a relatively tall and thin wearer, the homography transformation would warp the original image in a way that would cause noticeable distortion during stretching.
                 </p>
@@ -119,31 +135,41 @@
 
             </div>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-12">
           <h2>Experiments and Results</h2>
           <hr>
             <div class="container-fluid">
-                <ul>
-                    <li>Be able to identify edges based on shadows and different lightings by utilizing filters to
-                        better find accurate correspondences for our homographies
-                    </li>
-                    <li>Apply this technology to more types of clothing including: dresses, loose clothing, formal
-                        attire, etc.
-                    </li>
-                    <li>Apply this technology to fit clothing onto users standing in a variety of poses.</li>
-                    <li>Use feature detection techniques to detect the sleeves of a shirt and break it up into different
-                        components, so the user does not manually need to select the sleeves
-                    </li>
-                    <li>Adding a shadow around the user to make the final image look more realistic</li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="container-fluid">
-                <img src="assets/images/diamond-sweater.png" class="img-fluid" style="width: 48%">
-                <img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%">
-                <p>Ideally our system can be used on different clothing styles such as formal clothing</p>
-                <i>(Image Source: amazon.com)</i>
+              <p>
+
+              One experiment we attempted was the automatic detection of foreground / background on the user’s uploaded t-shirt images. It would make the homographies look more clean if the background of the t-shirt image was not applied on top of the user’s image. Additionally, having a more accurate way to detect background pixels allows for a more accurate energy function that can decide where to add and remove seams from the shirt.
+
+              First, we tried just using the color of the pixel in the top left corner of the image as the background color, and treating any instance of that color as the background. However, we quickly ran into the issue where if the image background was white, then white designs and logos on the t-shirt were also marked are the background. So just using the pixel value would not be enough to effectively identify the background.
+
+              Next, we tried using sobel edges to detect the edges of the t-shirt and separate it from the background. While the edge detection worked well, it was still hard to figure out how to set all the values inside the shirt to be masked, because the designs on the t-shirt were also outlined by the sobel edge detector. Using a binary_fill_holes method allowed up to highlight the entire area inside the shirt, filling in the areas with patterns and logos. However, the end result was not smooth along the edges, as shown in the images below. With and without a gaussian smoothing filter, the edges of the final result appeared very jagged.
+              </p>
+              <div class="container-fluid">
+
+                  <img src="assets/images/sobelEdgeDetector.png" class="img-fluid" style="width: 48%">
+              <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                  <p>
+                    Sobel Edge Detector with binary_fill_holes applied from SciPy library:
+                  </p>
+              </div>
+              <p>
+                Lastly, we tried first applying a hysteresis threshold to the image. This resulted in a cleaner, smoother edge detection that was also more robust to patterns and designs on the clothing. Applying a sobel edge detector to that result led to smoother results along the edge of the t-shirts. Finally, using the same binary_fill_holes method would fill in the gaps, patterns, and logos on the t-shirt. This sequence of steps resulted in the following smoother foreground masks, as shown below. With these masks, the homography and seam carving functions can be updated to be more effective at ignoring the background and using the foreground. While the masking results are still not perfect, the use of this mask should help significantly improve the quality of the final output.
+              </p>
+              <div class="container-fluid">
+
+                  <img src="assets/images/hysteresisThreshold.png" class="img-fluid" style="width: 48%">
+              <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                  <p>
+                    Results from using Hysteresis Thresholding
+                  </p>
+              </div>
+              <p>
+                A description of the experiments relating to the intermediate step of resizing the image using modified seam carving can be found in the ‘approach’ section. Those have been omitted here since the results of those experiments drastically changed the algorithm we ended up using and were not representative of the final approach.
+              </p>
+
             </div>
         </div>
         <div class="col-sm-12">
@@ -188,71 +214,13 @@
             </div>
         </div>
         <div class="col-sm-12">
-            <div class="container-fluid">
-                <h4>Data Collection</h4>
-                <p>Since we do not require a training set to complete this assignment, the majority of our data
-                    collection will be from teammates going on Amazon.com and other clothing retail websites to pick up
-                    valid images of clothing items to test on. Additionally, we will be using a mixed variety of models
-                    also picked off of retail websites to try overlaying the clothing on top of as well as actual images
-                    taken from smartphones of students/friends that consent to being included in this project.</p>
-            </div>
-        </div>
-        <div class="col-sm-12">
           <h2>Future Work</h2>
           <hr>
             <div class="container-fluid">
                 <p>
-                    A successful solution would be an image of a clothing item overlayed on a user's figure such that
-                    the result
-                    looks "natural". We define "natural" to satisfy the following constraints:
-                <ul>
-                    <li>Lack of image distortion shirt</li>
-                    <li>Lack of artifacts</li>
-                    <li>Proper alignment of shirt on body</li>
-                    <li>Lack of mismatched lighting</li>
-                </ul>
+                  TODO
                 </p>
-                <p>
-                    To test the results of our mapping, we will examine the following variations in the images:
-                </p>
-                <ul>
-                    <li>
-                        <p><b>Different lighting conditions of the image of the user posing</b></p>
-                        By testing lighting conditions, we will be able to assess how we much manipulate the image of
-                        the user so that the shirt that is overlaid on their body looks natural. For example, if an
-                        image is in dark lighting, but the clothing item is very bright there will be a very obvious
-                        discrepancy
-                        <br>
-                        <br>
-                    </li>
-                    <li>
-                        <p><b>Varying resolutions of the shirt/clothing item and of the image of the user posing
-                        </b></p>
-                        If the resolution of the shirt is significantly larger or smaller than the resolution of the
-                        figure then there will need to be scaling done before any homographies can be completed.
-                        Additionally, there will need to be a threshold in which the algorithm we create decides that
-                        seam carving is a more proper solution to increasing the dimensions of the clothing item because
-                        scaling would be an unrealistic representation of the shirt. We will need to test various
-                        resolutions to best accommodate these conditions and figure out what the “sweet spot” threshold
-                        will be.
-                        <br>
-                        <br>
-                    </li>
-                    <li>
-                        <p><b>Varying the location and number of clicks the user must provide to calculate the
-                            homography
-                            matrix</b></p>
-                        Because user input is required, we need to limit the number of clicks required because otherwise
-                        the user will not believe that using this tool is worth their time. Therefore we need to try to
-                        figure out the minimum number of points on that are strictly necessary for the user to identify
-                        in order for the mapping to work effectively. We expect that shoulder, end of sleeves, and hips
-                        will definitely be necessary, but are currently unsure about how the collar of the shirt will be
-                        accounted for, and how the requirements might change if the clothing item is a long-sleeved
-                        shirt.
-                        <br>
-                        <br>
-                    </li>
-                </ul>
+
             </div>
         </div>
         <div class="col-sm-12">
