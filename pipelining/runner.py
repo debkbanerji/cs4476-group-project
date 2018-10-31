@@ -1,10 +1,12 @@
 from utils import ImageWidget
 import matplotlib.pyplot as plt
 from scipy import misc
+from backgroundRemover import foregroundMask
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog, QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import QEventLoop, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
+
 #https://stackoverflow.com/questions/35992088/why-mousemoveevent-does-nothing-in-pyqt5
 class SeamApp(QWidget):
     # source: https://pythonspot.com/pyqt5-image/
@@ -83,6 +85,7 @@ class SeamApp(QWidget):
         self.collectingTShirtPts = True
         if self.currentImageName is not None:
             self.countShirts += 1
+        foregroundMask(misc.imread(self.currentImageName, mode='RGBA'), "t_shirt" + str(self.countShirts))
         self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage],
         "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1])
 
