@@ -28,15 +28,15 @@
         <div class="col-sm-12">
             <div class="container-fluid">
                 <br>
-                <h3>Abstract</h3>
+                <h2>Abstract</h2>
                 <hr>
                 <p>
-                    One or two sentences on the motivation behind the problem you are solving. One or two sentences describing the approach you took. One or two sentences on the main result you obtained.
+                  As more people opt to utilize the convenience and speed of shopping online, the problem of determining clothing fit becomes more and more apparent and important to solve. If online shoppers were able to see what a particular item of clothing looks like on them, we predict they may be more likely to complete their purchase. Therefore, we propose a system that will take an article of clothing and map it onto an image of the user, thus allowing users to more confidently decide if an item of clothing “looks good” on them. Our system is simple as it utilizes homography transformations and seam carving to fit the article of clothing onto the user. We ran our system on just T-shirts and our results give a fairly accurate idea of the fit of the t-shirt on a potential consumer.
                 </p>
             </div>
             <div class="container-fluid">
                 <br>
-                <h3> Teaser Image </h3>
+                <h2> Teaser Image </h2>
                 <hr>
                 <img src="assets/images/teaserImage.png" class="img-fluid" style="width: 48%">
                 <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
@@ -59,12 +59,12 @@
                 <h2>Approach</h2>
                 <hr>
 
-                <h3> Collecting Correspondence Points</h3>
+                <h4> Collecting Correspondence Points</h4>
                 <p>
                     To be able to transform the image of the t-shirt onto the image of the user, we need to collect correspondence information between common points on the t-shirt image and on the user’s body. Our system first requests an image of the user in the predefined pose we outlined in our project proposal. The user is then asked to select points on their own image that correspond to the left sleeve of a short-sleeved t-shirt. We decided to store correspondence points for the sleeves and the torso separately so we can easily differentiate between sleeve correspondences and torso correspondences. The user is then asked to select points corresponding to their right sleeve and then their torso. This process is then repeated on an image of a t-shirt that the user wants to try on. When the user is done selecting these points, we now have a set of corresponding points that can later be used for a homography transformation.
                 </p>
 
-                <h3> Seam Carving </h3>
+                <h4> Seam Carving </h4>
                 <p>
                     One of the major problems that we wanted to address with our system is distortion caused by warping a piece of clothing onto the target wearer. This warping leads to unnatural distortion which is especially noticeable in the context of the image as a whole. For example, if a t-shirt of certain proportions is warped to fit a relatively tall and thin wearer, the homography transformation would warp the original image in a way that would cause noticeable distortion during stretching.
                 </p>
@@ -120,8 +120,9 @@
             </div>
         </div>
         <div class="col-sm-8">
+          <h2>Experiments and Results</h2>
+          <hr>
             <div class="container-fluid">
-                <h4>Stretch Goals</h4>
                 <ul>
                     <li>Be able to identify edges based on shadows and different lightings by utilizing filters to
                         better find accurate correspondences for our homographies
@@ -146,9 +147,9 @@
             </div>
         </div>
         <div class="col-sm-12">
+          <h2>Sample Outputs</h2>
+          <hr>
             <div class="container-fluid">
-                <h3>Experiment and Results</h3>
-                <hr>
                 <p>In the implementation of this project, we will utilize code that calculates the homography matrix
                     to map the shirt onto the figure’s body. However, before this mapping can be completed we will need
                     to analyze the image to assess whether or not the image must be shrunk or expanded in horizontal and
@@ -197,8 +198,9 @@
             </div>
         </div>
         <div class="col-sm-12">
+          <h2>Future Work</h2>
+          <hr>
             <div class="container-fluid">
-                <h4>Testing Our Solution</h4>
                 <p>
                     A successful solution would be an image of a clothing item overlayed on a user's figure such that
                     the result
@@ -262,6 +264,9 @@
                     </li>
                     <li>
                         [2] Hilsmann A., Eisert P. (2009) Tracking and Retexturing Cloth for Real-Time Virtual Clothing Applications. In: Gagalowicz A., Philips W. (eds) Computer Vision/Computer Graphics CollaborationTechniques. MIRAGE 2009. Lecture Notes in Computer Science, vol 5496. Springer, Berlin, Heidelberg
+                    </li>
+                    <li>
+                        [3] Avidan, Shai, and Ariel Shamir. “Seam Carving for Content-Aware Image Resizing.” ACM SIGGRAPH 2007 Papers, ACM, 2007, doi:10.1145/1275808.1276390.
                     </li>
                 </p>
             </div>
