@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico"/>
+    <title>Project Proposal</title>
+</head>
+<body>
+<div>
+    <div class="row" style="padding: 0; overflow: hidden; width: 98vw">
+        <div class="col-xs-12" style="width: 100%">
+            <div class="container-fluid" style="text-align: center; width: 100%">
+                <h1>Midterm Project Update - The Seam Team</h1>
+                <h2>CS 4476 - Computer Vision</h2>
+                <span>Team members:
+                    <a href="mailto:dbanerji3@gatech.edu">Deb Banerji</a>,
+                    <a href="mailto:chsieh40@gatech.edu">Christine Hsieh</a>,
+                    <a href="mailto:Kchen357@gatech.edu">Kevin Chen</a>,
+                    <a href="mailto:Kpatel349@gatech.edu">Kirtan Patel</a>,
+                    <a href="mailto:rkrishnan42@gatech.edu">Rohith Krishnan</a>,
+                    <a href="mailto:smasand6@gatech.edu">Suraj Masand</a>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <br>
+                <h3>Abstract</h3>
+                <hr>
+                <p>
+                    One or two sentences on the motivation behind the problem you are solving. One or two sentences describing the approach you took. One or two sentences on the main result you obtained.
+                </p>
+            </div>
+            <div class="container-fluid">
+                <br>
+                <h3> Teaser Image </h3>
+                <hr>
+                <img src="assets/images/teaserImage.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                <p>Sample output of our system</p>
+
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <br>
+                <h2>Introduction</h2>
+                <hr>
+                <p>
+                    When people shop for clothing items online, it is often hard for them to tell how well an item of clothing will fit on themselves. Oftentimes, the model that is used to display the clothing item represents an “idea” physique for that article of clothing, making it difficult for the user to image how the item will fit on their own physique. There have been attempts to solve this problem by attempting to “fit” the image of the clothing item onto an image or 3D model of the user. These attempts have shown success but require complex 3D models [1] or an expensive camera setup that will track the user’s pose and physique [2]. Our solution attempts to remove the cost and complexity of fitting a clothing item to the user’s body while still giving an accurate representation of how an article of clothing will fit onto the user. The Seam Team presents a method that allows user to take an image of a piece of clothing and overlay it onto an image of themselves so they can have a realistic idea of how something fits before making a purchase.
+                </p>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h2>Approach</h2>
+                <hr>
+
+                <h3> Collecting Correspondence Points</h3>
+                <p>
+                    To be able to transform the image of the t-shirt onto the image of the user, we need to collect correspondence information between common points on the t-shirt image and on the user’s body. Our system first requests an image of the user in the predefined pose we outlined in our project proposal. The user is then asked to select points on their own image that correspond to the left sleeve of a short-sleeved t-shirt. We decided to store correspondence points for the sleeves and the torso separately so we can easily differentiate between sleeve correspondences and torso correspondences. The user is then asked to select points corresponding to their right sleeve and then their torso. This process is then repeated on an image of a t-shirt that the user wants to try on. When the user is done selecting these points, we now have a set of corresponding points that can later be used for a homography transformation.
+                </p>
+
+                <h3> Seam Carving </h3>
+                <p>
+                    One of the major problems that we wanted to address with our system is distortion caused by warping a piece of clothing onto the target wearer. This warping leads to unnatural distortion which is especially noticeable in the context of the image as a whole. For example, if a t-shirt of certain proportions is warped to fit a relatively tall and thin wearer, the homography transformation would warp the original image in a way that would cause noticeable distortion during stretching.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/homographyTransform.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Distorted T-shirt after Homography Transformation</p>
+                </div>
+
+                <p>
+                    Looking closely at the image, one can see how the stretched resize has distorted the logo on the t-shirt (highlighted with the drawn pink lines). This is especially noticeable on the letter ‘C’ in the logo, an issue which would be much less natural looking at higher resolution. Furthermore, the shape of the sleeves is also distorted and unnatural looking.
+
+                    A solution to this would be to use seam carving. This preprocessing step aims to naturally reshape the piece of clothing in order to best match the transformation about to be carried out. This way, by using the reshaped piece of clothing instead, the distortion due to the transformation would be greatly reduced, and important features such as logos would be preserved. Unfortunately, the traditional seam carving algorithm from [1] was not especially useful when it came to reshaping the image of the piece of clothing, since the lowest energy pixels were background pixels, and so the background rather than the piece of clothing itself was extended or shrunk in each case. The output of this resizing on the same test case as before is shown below:
+
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/seamCarvingSuccess.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>T-shirt after running Seam Carving</p>
+                </div>
+                <p>
+                    This issue was slightly reduced by adding penalties to areas in which seams were duplicated, but after testing it became clear that this was not a very good fix as the size of the resulting clothing portion of the image would be unpredictable, since background pixels were still being used.
+
+                    We tested a fix that revolved around changing the energy function so that it assigned very high energy to background pixels, so that they would not be chosen as seams. Unfortunately, this led to the side effect of the algorithm disproportionately choosing seams with more non-background pixels than others, causing large amounts of distortion in areas such as sleeves.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/seamCarvingFail.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Sleeve Distortion</p>
+                </div>
+                <p>
+                    This sleeve distortion was caused by the algorithm’s tendency to prefer choosing horizontal seams with as few background pixels as possible.
+
+                    In order to account for this issue, our final seam carving algorithm needed to move beyond simply altering the energy function and had to instead intelligently choose seams based on minimum background interference.
+
+                    In order to do this, we reimplemented a more context aware version of the seam carving algorithm from scratch, one that used two dynamic programming tables instead of one. The original algorithm built the cumulative energy map based on previous table entries of a single table. Our algorithm, however, chooses seams based on the normalized energy of all the non-background pixels of previously calculated seams. In order to do this, it uses two tables.
+
+                    One of these tables tracks the total energy of the non-background pixels in the optimal seam ending at the corresponding entry of the table. (here, the ‘optimal seam’ is the one with the smallest normalized energy of non-background pixels) The other table tracks the number of non-background pixels in the optimal seam. The combination of previously calculated table entries from these two tables can be used to compute each new table entry of either table in constant time, using the recursive relationship that defines new table entries. Since a similar dynamic programming approach is being used, the asymptotic time and space complexity of the algorithm is the same, though extra space is used fo the second table. When finding the seam from this modified cumulative energy map, the map considered when backtracking consists of each entry of the total non-background pixel energy table divided by the corresponding entry of the pixel count table. This effectively means a normalized map of minimum cumulative non-background pixel energy values is passed to the find seam function, and the bias due to number of background pixels is eliminated. The results of this improved algorithm can be seen in the next image.
+                </p>
+                <div class="container-fluid">
+
+                    <img src="assets/images/improvedSeamCarving.png" class="img-fluid" style="width: 48%">
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Improved Seam Carving</p>
+                </div>
+                <p>
+                    In order to allow for cleaner code and a faster runtime, we reimplemented all of the seam carving steps from scratch, altering them in order to accomodate our new approach. This new implementation creates containers large enough to work with the larger of the input and final images before carrying out the steps of the algorithm. This allows all intermediate steps to be efficiently carried out in place. Instead of copying the entire image to a new array during each seam change, efficient pixel shifting is employed instead. The same is done for the corresponding energy image, which is also updated on the fly so it does not need to be calculated. The result is that even though our algorithm should theoretically take longer to run due to the more complex dynamic programming procedure, in practice it is quite fast when compared to our regular seam carving implementations from earlier in the semester. For the given example (the black shirt) our new implementation was approximately five times as fast as both of the problem set 2 implementations we tested it against, despite the more complicated algorithm. This increase in speed was very useful to us, since it allowed us to test on a larger amount of data within a reasonable amount of time.
+                </p>
+
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="container-fluid">
+                <h4>Stretch Goals</h4>
+                <ul>
+                    <li>Be able to identify edges based on shadows and different lightings by utilizing filters to
+                        better find accurate correspondences for our homographies
+                    </li>
+                    <li>Apply this technology to more types of clothing including: dresses, loose clothing, formal
+                        attire, etc.
+                    </li>
+                    <li>Apply this technology to fit clothing onto users standing in a variety of poses.</li>
+                    <li>Use feature detection techniques to detect the sleeves of a shirt and break it up into different
+                        components, so the user does not manually need to select the sleeves
+                    </li>
+                    <li>Adding a shadow around the user to make the final image look more realistic</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="container-fluid">
+                <img src="assets/images/diamond-sweater.png" class="img-fluid" style="width: 48%">
+                <img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%">
+                <p>Ideally our system can be used on different clothing styles such as formal clothing</p>
+                <i>(Image Source: amazon.com)</i>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h3>Experiment and Results</h3>
+                <hr>
+                <p>In the implementation of this project, we will utilize code that calculates the homography matrix
+                    to map the shirt onto the figure’s body. However, before this mapping can be completed we will need
+                    to analyze the image to assess whether or not the image must be shrunk or expanded in horizontal and
+                    vertical directions. In this modification of the image, we will need to use a modified version of
+                    the seam carving algorithm that utilizes a specific heuristic such that the clothing is modified in
+                    a realistic fashion. This will require extensive testing and parameter tweaking in the calculation
+                    of the energy function within the shirts. We hope to design an energy function that will not only be
+                    suitable for seam carving, but also be able to account for how fully the item encompasses the user.
+                    Additionally, for cases of sub-optimal lighting of the figure, we will need to find a way to analyze
+                    the image and apply filters so that the result of the overlay looks natural. Since our system will be
+                    the one applying the shirt onto the target image, we will be able to identify depth discontinuity caused
+                    by the edges of the object (without accidentally detecting other edges) and use this information as a heuristic
+                    to add more realistic lighting to the image.</p>
+                <p>To test the homography matrices that we generate for a figure and a given clothing item, we wish to
+                    test various lighting scenarios on both the image of the figure and the image of the clothing item.
+                    To establish consistency, we will establish a specific pose for individuals to follow when they take
+                    images of themselves. To start off, we hope to be able to map t-shirts onto both male and female
+                    models.</p>
+                <div class="container-fluid">
+                    <img src="assets/images/guy-with-shirt.png" class="img-fluid" style="width: 32%">
+                    <img src="assets/images/girl-with-shirt.png" class="img-fluid" style="width: 32%">
+                    <img src="assets/images/other-guy-with-other-shirt.jpg" class="img-fluid" style="width: 32%">
+                    <p> Standard pose that the user should follow when using our system</p>
+                </div>
+                <br>
+                <p>Based off of images viewed on major shopping sites we expect most clothing images presented by
+                    retailers to be of high quality and good lighting. </p>
+                <p><i>(Image Source: amazon.com)</i></p>
+                <div class="container-fluid">
+                    <img src="assets/images/black-shirt.png" class="img-fluid" style="width: 32%">
+                    <img src="assets/images/grey-shirt.png" class="img-fluid" style="width: 32%">
+                    <img src="assets/images/blue-shirt.jpg" class="img-fluid" style="width: 32%">
+                    <p> Sample T-shirts we will use to test our system</p>
+                    <p><i>(Image Source: amazon.com)</i></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h4>Data Collection</h4>
+                <p>Since we do not require a training set to complete this assignment, the majority of our data
+                    collection will be from teammates going on Amazon.com and other clothing retail websites to pick up
+                    valid images of clothing items to test on. Additionally, we will be using a mixed variety of models
+                    also picked off of retail websites to try overlaying the clothing on top of as well as actual images
+                    taken from smartphones of students/friends that consent to being included in this project.</p>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h4>Testing Our Solution</h4>
+                <p>
+                    A successful solution would be an image of a clothing item overlayed on a user's figure such that
+                    the result
+                    looks "natural". We define "natural" to satisfy the following constraints:
+                <ul>
+                    <li>Lack of image distortion shirt</li>
+                    <li>Lack of artifacts</li>
+                    <li>Proper alignment of shirt on body</li>
+                    <li>Lack of mismatched lighting</li>
+                </ul>
+                </p>
+                <p>
+                    To test the results of our mapping, we will examine the following variations in the images:
+                </p>
+                <ul>
+                    <li>
+                        <p><b>Different lighting conditions of the image of the user posing</b></p>
+                        By testing lighting conditions, we will be able to assess how we much manipulate the image of
+                        the user so that the shirt that is overlaid on their body looks natural. For example, if an
+                        image is in dark lighting, but the clothing item is very bright there will be a very obvious
+                        discrepancy
+                        <br>
+                        <br>
+                    </li>
+                    <li>
+                        <p><b>Varying resolutions of the shirt/clothing item and of the image of the user posing
+                        </b></p>
+                        If the resolution of the shirt is significantly larger or smaller than the resolution of the
+                        figure then there will need to be scaling done before any homographies can be completed.
+                        Additionally, there will need to be a threshold in which the algorithm we create decides that
+                        seam carving is a more proper solution to increasing the dimensions of the clothing item because
+                        scaling would be an unrealistic representation of the shirt. We will need to test various
+                        resolutions to best accommodate these conditions and figure out what the “sweet spot” threshold
+                        will be.
+                        <br>
+                        <br>
+                    </li>
+                    <li>
+                        <p><b>Varying the location and number of clicks the user must provide to calculate the
+                            homography
+                            matrix</b></p>
+                        Because user input is required, we need to limit the number of clicks required because otherwise
+                        the user will not believe that using this tool is worth their time. Therefore we need to try to
+                        figure out the minimum number of points on that are strictly necessary for the user to identify
+                        in order for the mapping to work effectively. We expect that shoulder, end of sleeves, and hips
+                        will definitely be necessary, but are currently unsure about how the collar of the shirt will be
+                        accounted for, and how the requirements might change if the clothing item is a long-sleeved
+                        shirt.
+                        <br>
+                        <br>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <h4>References</h4>
+                <p>
+                    <li>
+                        [1] Hauswiesner, Stefan et al. “Image-based clothes transfer.” 2011 10th IEEE International Symposium on Mixed and Augmented Reality (2011): 169-172.
+                    </li>
+                    <li>
+                        [2] Hilsmann A., Eisert P. (2009) Tracking and Retexturing Cloth for Real-Time Virtual Clothing Applications. In: Gagalowicz A., Philips W. (eds) Computer Vision/Computer Graphics CollaborationTechniques. MIRAGE 2009. Lecture Notes in Computer Science, vol 5496. Springer, Berlin, Heidelberg
+                    </li>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+</body>
+</html>
