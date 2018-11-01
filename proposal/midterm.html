@@ -302,21 +302,18 @@
                     backgrounds that definitely should not be included in the final model image with the user.
                 </p>
                 <!--</div>-->
-                <div class="container-fluid">
-                    <br>
-                    <hr>
-                    <div><img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200">
-                        <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                        <p>Failed result of using a standard homography because our goal is not to get the entirety of
-                            image A onto image B</p></div>
-                </div>
+                <div><img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200">
+                    <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                    <p>Failed result of using a standard homography because our goal is not to get the entirety of
+                        image A onto image B</p></div>
                 <b>Approach A</b>
                 <p>
                     An initial heuristic that we employed, similar to what was employed earlier, involved simply taking
-                    the pixel in the top left corner and saving that pixel value as the given background color. Now, in the
-                    process of doing inverse warpings from the shirt to the user, we will simply conduct a check to
-                    ensure that no pixels exactly equal to the background color are mapped over to the final image. We achieved
-                    certain levels of success, however clearly this heuristic fails when their are pixels values within
+                    the pixel in the top left corner and saving that pixel value as the given background color. Now, in
+                    the process of doing inverse warpings from the shirt to the user, we will simply conduct a check to
+                    ensure that no pixels exactly equal to the background color are mapped over to the final image. We
+                    achieved certain levels of success, however clearly this heuristic fails when their are pixels
+                    values within
                     the shirt itself that are equal to the background color.
                 </p>
                 <div><img src="assets/images/homographyNASA.png" class="img-fluid" height="200" width="200"><img
@@ -333,12 +330,13 @@
                     Despite all this, one flaw that both images had was the fact that shadows caused by the shirt would
                     also be warped onto the model image which proved to be problematic as it detracted from the overall
                     appearance. To help counteract this, we applied some form of filtering in an attempt to remove
-                    undesired colors. Theoretically, with the shadow being such a minimal part of the image, using a clustering
-                    algorithm like kmeans with a small enough k-value would eliminate the typical grey shadow line.
-                    Unfortunately, this value of k greatly varies with the type of shirt that is in question. As a
-                    result of this high variability, clustering the shirt with a predetermined k-value would either remove too
-                    many colors and thus detract from the image overall or remove too few in which case the shadow line still
-                    remained.
+                    undesired colors. Theoretically, with the shadow being such a minimal part of the image, using a
+                    clustering algorithm like kmeans with a small enough k-value would eliminate the typical grey shadow
+                    line. Unfortunately, this value of k greatly varies with the type of shirt that is in question. As a
+                    result of this high variability, clustering the shirt with a predetermined k-value would either
+                    remove too many colors and thus detract from the image overall or remove too few in which case the
+                    shadow line
+                    still remained.
                 </p>
                 <div><img src="assets/images/quantization_lowK.png" class="img-fluid" height="200" width="200"><img
                         src="assets/images/quantization_highK.png" class="img-fluid" height="200" width="200"></div>
@@ -349,71 +347,34 @@
                 </p></center>
             </div>
         </div>
-
         <div class="col-sm-12">
             <div class="container-fluid">
-            <h2>Sample Outputs</h2>
-            <hr>
-                <p>In the implementation of this project, we will utilize code that calculates the homography matrix
-                    to map the shirt onto the figure’s body. However, before this mapping can be completed we will need
-                    to analyze the image to assess whether or not the image must be shrunk or expanded in horizontal and
-                    vertical directions. In this modification of the image, we will need to use a modified version of
-                    the seam carving algorithm that utilizes a specific heuristic such that the clothing is modified in
-                    a realistic fashion. This will require extensive testing and parameter tweaking in the calculation
-                    of the energy function within the shirts. We hope to design an energy function that will not only be
-                    suitable for seam carving, but also be able to account for how fully the item encompasses the user.
-                    Additionally, for cases of sub-optimal lighting of the figure, we will need to find a way to analyze
-                    the image and apply filters so that the result of the overlay looks natural. Since our system will
-                    be the one applying the shirt onto the target image, we will be able to identify depth discontinuity
-                    caused by the edges of the object (without accidentally detecting other edges) and use this information as
-                    a heuristic to add more realistic lighting to the image.</p>
-                <p>To test the homography matrices that we generate for a figure and a given clothing item, we wish to
-                    test various lighting scenarios on both the image of the figure and the image of the clothing item.
-                    To establish consistency, we will establish a specific pose for individuals to follow when they take
-                    images of themselves. To start off, we hope to be able to map t-shirts onto both male and female
-                    models.</p>
-                <div class="container-fluid">
-                    <img src="assets/images/guy-with-shirt.png" class="img-fluid" style="width: 32%">
-                    <img src="assets/images/girl-with-shirt.png" class="img-fluid" style="width: 32%">
-                    <img src="assets/images/other-guy-with-other-shirt.jpg" class="img-fluid" style="width: 32%">
-                    <p> Standard pose that the user should follow when using our system</p>
-                </div>
-                <br>
-                <p>Based off of images viewed on major shopping sites we expect most clothing images presented by
-                    retailers to be of high quality and good lighting. </p>
-                <p><i>(Image Source: amazon.com)</i></p>
-                <div class="container-fluid">
-                    <img src="assets/images/black-shirt.png" class="img-fluid" style="width: 32%">
-                    <img src="assets/images/grey-shirt.png" class="img-fluid" style="width: 32%">
-                    <img src="assets/images/blue-shirt.jpg" class="img-fluid" style="width: 32%">
-                    <p> Sample T-shirts we will use to test our system</p>
-                    <p><i>(Image Source: amazon.com)</i></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="container-fluid">
-            <h2>Future Work</h2>
-            <hr>
+                <h2>Future Work</h2>
+                <hr>
                 <li>
                     We want to be able to find a way to automatically detect and remove the area of the shirt directly
                     behind the neck where typically the shirt label and tags are located. In our current implementation,
-                    the user’s neck is placed above the shirt. Typically, 3D modelling would take care of this problem by
+                    the user’s neck is placed above the shirt. Typically, 3D modelling would take care of this problem
+                    by
                     placing the user “in” the shirt. However, since we are taking a 2D approach, more clever solutions
                     will be needed to handle this situation.
                 </li>
                 <li>
                     We still do not have a foolproof solution to the issue with the shadows along the edge of the shirt.
-                    Not all shirts display this property of having shadows, however for those that do we will need to handle
+                    Not all shirts display this property of having shadows, however for those that do we will need to
+                    handle
                     this situation. We hope to apply some form of filtering to blend out these shadows so that the
                     resulting homographies look cleaner.
                 </li>
                 <li>
                     The resulting homographies are not always clean and 100% on top of the user. As a next step, we want
-                    to completely remove user input (other than simply requiring the user to select the desired shirt and
-                    their pose). We hope to accomplish this by using automatic corner detection while simultaneously finding
+                    to completely remove user input (other than simply requiring the user to select the desired shirt
+                    and
+                    their pose). We hope to accomplish this by using automatic corner detection while simultaneously
+                    finding
                     optimal corresponding points by using these edges. This should theoretically make the homography
-                    cleaner and more accurate while removing the painstaking process of having to select correspondences.
+                    cleaner and more accurate while removing the painstaking process of having to select
+                    correspondences.
                 </li>
 
             </div>
