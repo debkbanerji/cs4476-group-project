@@ -212,13 +212,58 @@
                     tested it against, despite the more complicated algorithm. This increase in speed was very useful to
                     us, since it allowed us to test on a larger amount of data within a reasonable amount of time.
                 </p>
+                <br>
 
+                <h4>Homography</h4>
+                <p>
+                    In this step of the process, we detail our attempts and methods to properly map the clothing of
+                    choice onto the user. We used the correspondences that the user selected in the initial setup to
+                    create a homography to map our seam-carved clothing onto an image of our user. There were several
+                    initial challenges with this approach. The first being that by nature, homographies map the entire
+                    image A onto image B. This is particularly problematic because these images often times have
+                    backgrounds that definitely should not be included in the final model image with the user.
+                </p>
+                <div>
+                    <img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200">
+                    <p><i>(Failed result of using a standard homography because our goal is not to get the entirety of
+                        image A onto image B)</i></p>
+                </div>
+                <b>Approach A</b>
+                <p>
+                    An initial heuristic that we employed, similar to what was employed earlier, involved simply taking
+                    the pixel in the top left corner and saving that pixel value as the given background color. Now, in
+                    the process of doing inverse warpings from the shirt to the user, we will simply conduct a check to
+                    ensure that no pixels exactly equal to the background color are mapped over to the final image. We
+                    achieved certain levels of success, however clearly this heuristic fails when their are pixels
+                    values within
+                    the shirt itself that are equal to the background color.
+                </p>
+                <div><img src="assets/images/homographyNASA.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographyCHAMP.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographyBLUE.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographySUPERMAN.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographyNIKE.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographyAVENGERS.png" class="img-fluid" height="200" width="200"></div>
+                <div><p><i>
+                    (Results of homography using approach A)
+                </p></div><i>
+                <b>Approach B</b>
+                <p>
+                    To find the most optimal way to warp an image we turned to our previous work done with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing warping pipeline so that now we only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach.
+                </p>
+                <div><img src="assets/images/homographyApproachB.png" class="img-fluid" height="200" width="200"><img
+                        src="assets/images/homographyApproachB2.png" class="img-fluid" height="200" width="200">
+                </div>
+                <p><i>
+                    (Results of homography using approach B)
+                <i></p>
             </div>
         </div>
         <div class="col-sm-12">
             <h2>Experiments and Results</h2>
             <hr>
             <div class="container-fluid">
+                <p><b>Experiment 1</b></p>
                 <p>
 
                     One experiment we attempted was the automatic detection of foreground / background on the user’s
@@ -245,9 +290,9 @@
 
                     <img src="assets/images/sobelEdgeDetector.png" class="img-fluid" style="width: 48%">
                     <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>
-                        Sobel Edge Detector with binary_fill_holes applied from SciPy library:
-                    </p>
+                    <p><i>
+                        (Sobel Edge Detector with binary_fill_holes applied from SciPy library.)
+                    </i></p>
                 </div>
                 <p>
                     Lastly, we tried first applying a hysteresis threshold to the image. This resulted in a cleaner,
@@ -263,9 +308,9 @@
 
                     <img src="assets/images/hysteresisThreshold.png" class="img-fluid" style="width: 48%">
                     <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>
-                        Results from using Hysteresis Thresholding
-                    </p>
+                    <p><i>
+                        (Results from using Hysteresis Thresholding.)
+                    </i></p>
                 </div>
                 <p>
                     A description of the experiments relating to the intermediate step of resizing the image using
@@ -273,60 +318,12 @@
                     results of those experiments drastically changed the algorithm we ended up using and were not
                     representative of the final approach.
                 </p>
-            </div>
-        </div>
-
-        <div class="col-sm-12">
-            <div class="container-fluid">
                 <br>
-                <h2>Homography</h2>
-                <hr>
+
+                <p><b>Experiment 2</b></p>
+
                 <p>
-                    In this step of the process, we detail our attempts and methods to properly map the clothing of
-                    choice onto the user. We used the correspondences that the user selected in the initial setup to
-                    create a homography to map our seam-carved clothing onto an image of our user. There were several
-                    initial challenges with this approach. The first being that by nature, homographies map the entire
-                    image A onto image B. This is particularly problematic because these images often times have
-                    backgrounds that definitely should not be included in the final model image with the user.
-                </p>
-                <!--</div>-->
-                <div><img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200">
-                    <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>Failed result of using a standard homography because our goal is not to get the entirety of
-                        image A onto image B</p></div>
-                <b>Approach A</b>
-                <p>
-                    An initial heuristic that we employed, similar to what was employed earlier, involved simply taking
-                    the pixel in the top left corner and saving that pixel value as the given background color. Now, in
-                    the process of doing inverse warpings from the shirt to the user, we will simply conduct a check to
-                    ensure that no pixels exactly equal to the background color are mapped over to the final image. We
-                    achieved certain levels of success, however clearly this heuristic fails when their are pixels
-                    values within
-                    the shirt itself that are equal to the background color.
-                </p>
-                <div><img src="assets/images/homographyNASA.png" class="img-fluid" height="200" width="200">
-                    <img src="assets/images/homographyCHAMP.png" class="img-fluid" height="200" width="200">
-                    <img src="assets/images/homographyBLUE.png" class="img-fluid" height="200" width="200">
-                    <img src="assets/images/homographySUPERMAN.png" class="img-fluid" height="200" width="200">
-                    <img src="assets/images/homographyNIKE.png" class="img-fluid" height="200" width="200">
-                    <img src="assets/images/homographyAVENGERS.png" class="img-fluid" height="200" width="200"></div>
-                <div><p>
-                    Results of homography using approach A
-                </p></div>
-                <b>Approach B</b>
-                <p>
-                    To find the most optimal way to warp an image we turned to our previous work done with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing warping pipeline so that now we only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach. 
-                </p>
-                <div><img src="assets/images/homographyApproachB.png" class="img-fluid" height="200" width="200"><img
-                        src="assets/images/homographyApproachB2.png" class="img-fluid" height="200" width="200"></div>
-                <p>
-                    Results of homography using approach B
-                </p>
-                <b>Approach C</b>
-                <p>
-                    Despite all this, one flaw that both images had was the fact that shadows caused by the shirt would
-                    also be warped onto the model image which proved to be problematic as it detracted from the overall
-                    appearance. To help counteract this, we applied some form of filtering in an attempt to remove
+                    In the homography mapping implementation in our system, one flaw that we realized in our approach was that shadows caused by the shirt would also be warped onto the model image which proved to be problematic as it detracted from the overall appearance. To help counteract this, we applied some form of filtering in an attempt to remove
                     undesired colors. Theoretically, with the shadow being such a minimal part of the image, using a
                     clustering algorithm like kmeans with a small enough k-value would eliminate the typical grey shadow
                     line. Unfortunately, this value of k greatly varies with the type of shirt that is in question. As a
@@ -337,11 +334,11 @@
                 </p>
                 <div><img src="assets/images/quantization_lowK.png" class="img-fluid" height="200" width="200"><img
                         src="assets/images/quantization_highK.png" class="img-fluid" height="200" width="200"></div>
-                <center><p>
-                    To the left is the result of kmeans clustering with a low k-value. The shadow is removed but along
+                <p><i>
+                    (To the left is the result of kmeans clustering with a low k-value. The shadow is removed but along
                     with it are a lot of the colors making the shirt look flat. To the right is the result of kmeans
-                    clustering with a high k-value. The shadow is unfortunately still present.
-                </p></center>
+                    clustering with a high k-value. The shadow is unfortunately still present.)
+                </i></p>
             </div>
         </div>
         <div class="col-sm-12">
@@ -380,26 +377,28 @@
 
             </div>
         </div>
+        <br>
         <div class="col-sm-12">
             <div class="container-fluid">
-                <h4>References</h4>
+                <h2>References</h2>
+                <hr>
                 <p>
-                <li>
+
                     [1] Hauswiesner, Stefan et al. “Image-based clothes transfer.” 2011 10th IEEE International
                     Symposium on
                     Mixed and Augmented Reality (2011): 169-172.
-                </li>
-                <li>
+
+                </p>
+                <p>
                     [2] Hilsmann A., Eisert P. (2009) Tracking and Retexturing Cloth for Real-Time Virtual Clothing
                     Applications. In: Gagalowicz A., Philips W. (eds) Computer Vision/Computer Graphics
                     CollaborationTechniques. MIRAGE 2009. Lecture Notes in Computer Science, vol 5496. Springer, Berlin,
                     Heidelberg
-                </li>
-                <li>
+                </p>
+                <p>
                     [3] Avidan, Shai, and Ariel Shamir. “Seam Carving for Content-Aware Image Resizing.” ACM SIGGRAPH
                     2007
                     Papers, ACM, 2007, doi:10.1145/1275808.1276390.
-                </li>
                 </p>
             </div>
         </div>
