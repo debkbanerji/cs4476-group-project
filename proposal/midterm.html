@@ -59,8 +59,8 @@
                 <p>
                     When people shop for clothing items online, it is often hard for them to tell how well an item of
                     clothing will fit on themselves. Oftentimes, the model that is used to display the clothing item
-                    represents an “idea” physique for that article of clothing, making it difficult for the user to
-                    image how the item will fit on their own physique. There have been attempts to solve this problem by
+                    represents an “ideal” physique for that article of clothing, making it difficult for the user to
+                    imagine how the item will fit on their own physique. There have been attempts to solve this problem by
                     attempting to “fit” the image of the clothing item onto an image or 3D model of the user. These
                     attempts have shown success but require complex 3D models [1] or an expensive camera setup that will
                     track the user’s pose and physique [2]. Our solution attempts to remove the cost and complexity of
@@ -226,7 +226,7 @@
                 <div>
                     <img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200">
                     <p><i>(Failed result of using a standard homography because our goal is not to get the entirety of
-                        image A onto image B)</i></p>
+                        image A onto image B.)</i></p>
                 </div>
                 <b>Approach A</b>
                 <p>
@@ -245,24 +245,35 @@
                     <img src="assets/images/homographyNIKE.png" class="img-fluid" height="200" width="200">
                     <img src="assets/images/homographyAVENGERS.png" class="img-fluid" height="200" width="200"></div>
                 <div><p><i>
-                    (Results of homography using approach A)
-                </p></div><i>
+                    (Results of homography using approach A.)
+                </i></p></div>
                 <b>Approach B</b>
                 <p>
-                    To find the most optimal way to warp an image we turned to our previous work done with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing warping pipeline so that now we only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach.
+                    To find the most optimal way to warp an image we turned to our experimental work done below (see Experiment 1) with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing warping pipeline so that now we only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach due to the increased accuracy in background pixel detection.
                 </p>
-                <div><img src="assets/images/homographyApproachB.png" class="img-fluid" height="200" width="200"><img
+                <div>
+                    <img src="assets/images/homographyApproachB.png" class="img-fluid" height="200" width="200"><img
                         src="assets/images/homographyApproachB2.png" class="img-fluid" height="200" width="200">
                 </div>
                 <p><i>
-                    (Results of homography using approach B)
-                <i></p>
+                    (Results of homography using approach B.)
+                </i></p>
             </div>
         </div>
         <div class="col-sm-12">
             <h2>Experiments and Results</h2>
             <hr>
             <div class="container-fluid">
+                <h4>Evaluation Method</h4>
+                <p>
+                    Throughout the entire development process of this system, we primarily used qualitative analysis to assess weak points and flaws in the approaches we took. We looked for strange extra artifacts in the output, or strange distortions in the results in order to assess the need for a change in approach.<br/><br/>
+
+                    Specifically, while improving our existing homography model, we used human judgement. Typically this is not a very good evaluation metric, because there are no quantitative values to build display progress, however for a result as aesthetic as mapping clothing on a model, we believed this was the best course of action. It was fairly simple to understand that all the white irregular edges around the shirts in approach A were not acceptable. Thus, we were very pleased with the results from approach B where we were able to practically eliminate all of the white noise around the shirt.
+
+                </p>
+            </div>
+            <div class="container-fluid">
+                <h4>Experiments</h4>
                 <p><b>Experiment 1</b></p>
                 <p>
 
@@ -339,8 +350,18 @@
                     with it are a lot of the colors making the shirt look flat. To the right is the result of kmeans
                     clustering with a high k-value. The shadow is unfortunately still present.)
                 </i></p>
+
+                <h4>Results of System</h4>
+
+                <p>
+                    The following two images are the same images shared in the approaches section of this project update. These are the current best outputs we have created using our mapping system.
+                </p>
+
+                    <img src="assets/images/homographyApproachB.png" class="img-fluid" height="200" width="200">
+                    <img src="assets/images/homographyApproachB2.png" class="img-fluid" height="200" width="200">
             </div>
         </div>
+        <br>
         <div class="col-sm-12">
             <div class="container-fluid">
                 <h2>Future Work</h2>
