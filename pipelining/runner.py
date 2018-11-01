@@ -85,7 +85,7 @@ class SeamApp(QWidget):
         self.collectingTShirtPts = True
         if self.currentImageName is not None:
             self.countShirts += 1
-        foregroundMask(misc.imread(self.currentImageName, mode='RGBA'), "t_shirt" + str(self.countShirts))
+        # foregroundMask(misc.imread(self.currentImageName, mode='RGBA'), "t_shirt" + str(self.countShirts))
         self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage],
         "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1])
 
