@@ -38,9 +38,8 @@
                 <br>
                 <h2> Teaser Image </h2>
                 <hr>
-                <img src="assets/images/teaserImage.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                <p>Sample output of our system</p>
+                <img src="assets/images/teaserImage.png" class="img-fluid" style="width: 75%">
+                <p>This image demonstrates the basic idea behind our system. After inputting an image of themselves and the shirt that they are looking to buy, users will click a few correspondence points and then be able to see what that shirt looks like overlaid on their body. While this image was created using traditional photo-editing techniques of cropping and manual shrinking, this is time consuming and doesn't always result in an accurate picture. Our system will automate this process and give the user a better idea of what they look like in the indicated clothing item. </p>
 
             </div>
         </div>
@@ -71,13 +70,11 @@
                   The underlying reason that we are trying to use seam carving when resizing the shirt is to avoid strange distortions in the shirt’s pattern or text when the homography is applied. In order to avoid these distortions the resizing of the shirt must be completed with the intent of making the aspect ratio of the shirt comparable to the aspect ratio of the example shirt provided in the input image of the user. By resizing the shirt to have similar width-to-height proportions as the figure of the user, we have reduced opportunities for a shirt’s logo or image to be distorted. In order to complete this task, we first identified key points on a shirt that would help us approximate the shirt’s aspect ratio. To do this, we used the correspondence points collected for the homography to determine the approximate width and height of the shirt.
                 </p>
                 <div class="container-fluid">
-
-                    <img src="assets/images/sizeDefinition.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>Height was defined as the number of pixels from the collar line of the shirt to the bottom of the shirt. Width was defined as the number of pixels between each side of the torso. </p>
+                    <img src="assets/images/sizeDefinition.png" class="img-fluid" style="width: 25%">
+                    <p><i>(Height was defined as the number of pixels from the collar line of the shirt to the bottom of the shirt. Width was defined as the number of pixels between each side of the torso. These values were determined using the correspondence points provided by the user in the initial set up stage.)</i></p>
                 </div>
                 <p>
-                  Once the aspect ratio of the shirt and the user was determined, it was a matter of applying basic algebraic manipulation to calculate the necessary number of pixels that must be added/removed horizontally or vertically to the shirt. The interesting element to determining the required resize was in picking which would be preferable - changing the shirt in the y or x direction. For now, we calculate both possible manipulations to the shirt and pick the change that results in the least number of seams that must be added/removed.
+                  Once the aspect ratio of the shirt and the user was determined, it was a matter of applying basic algebraic manipulation to calculate the necessary number of pixels that must be added/removed horizontally or vertically to the shirt. The interesting part of this process was determining how to pick which direction of seam carving would be better: manipulating the width or the height. For now, we calculate both possible manipulations to the shirt and pick the change that results in the least number of seams that must be added/removed.
                 </p>
                 <h5>Part B: Determining which seams to add/remove</h5>
                 <br>
@@ -87,8 +84,7 @@
                 <div class="container-fluid">
 
                     <img src="assets/images/homographyTransform.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>Distorted T-shirt after Homography Transformation</p>
+                    <p><i>(Distorted T-shirt after Homography Transformation, note the distorted logo on the shirt.)</i></p>
                 </div>
 
                 <p>
@@ -100,8 +96,7 @@
                 <div class="container-fluid">
 
                     <img src="assets/images/seamCarvingSuccess.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>T-shirt after running Seam Carving</p>
+                    <p><i>(T-shirt after running traditional seam carving algorithm, note how the shirt has not increased in length, but instead whitespace has increased - not effective!)</i></p>
                 </div>
                 <p>
                     This issue was slightly reduced by adding penalties to areas in which seams were duplicated, but after testing it became clear that this was not a very good fix as the size of the resulting clothing portion of the image would be unpredictable, since background pixels were still being used.
@@ -111,8 +106,7 @@
                 <div class="container-fluid">
 
                     <img src="assets/images/seamCarvingFail.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>Sleeve Distortion</p>
+                    <p><i>(Seam carving with energy function configured such that backgound pixels have high energy; results in significant sleeve distortion.)</i></p>
                 </div>
                 <p>
                     This sleeve distortion was caused by the algorithm’s tendency to prefer choosing horizontal seams with as few background pixels as possible.
@@ -126,8 +120,7 @@
                 <div class="container-fluid">
 
                     <img src="assets/images/improvedSeamCarving.png" class="img-fluid" style="width: 48%">
-                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
-                    <p>Improved Seam Carving</p>
+                    <p><i>(Improved seam carving with updated energy function using two dynamic programming tables.)</i></p>
                 </div>
                 <p>
                     In order to allow for cleaner code and a faster runtime, we reimplemented all of the seam carving steps from scratch, altering them in order to accomodate our new approach. This new implementation creates containers large enough to work with the larger of the input and final images before carrying out the steps of the algorithm. This allows all intermediate steps to be efficiently carried out in place. Instead of copying the entire image to a new array during each seam change, efficient pixel shifting is employed instead. The same is done for the corresponding energy image, which is also updated on the fly so it does not need to be calculated. The result is that even though our algorithm should theoretically take longer to run due to the more complex dynamic programming procedure, in practice it is quite fast when compared to our regular seam carving implementations from earlier in the semester. For the given example (the black shirt) our new implementation was approximately five times as fast as both of the problem set 2 implementations we tested it against, despite the more complicated algorithm. This increase in speed was very useful to us, since it allowed us to test on a larger amount of data within a reasonable amount of time.
