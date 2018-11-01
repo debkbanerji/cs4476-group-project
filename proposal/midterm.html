@@ -172,6 +172,47 @@
 
             </div>
         </div>
+        
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <br>
+                <h2>Homography</h2>
+                <hr>
+                <p>
+                  In this step of the process, we detail our attempts and methods to properly map the clothing of choice onto the user. We used the correspondences that the user selected in the initial setup to create a homography to map our seam-carved clothing onto an image of our user. There were several initial challenges with this approach. The first being that by nature, homographies map the entire image A onto image B. This is particularly problematic because these images often times have backgrounds that definitely should not be included in the final model image with the user. 
+                </p>
+            </div>
+            <div class="container-fluid">
+                <br>
+                <hr>
+                <center><img src="assets/images/failedHomography_1.png" class="img-fluid" height="200" width="200"></center>
+                <!--<img src="assets/images/fancy-vest.png" class="img-fluid" style="width: 48%"> -->
+                <center><p>Failed result of using a standard homography because our goal is not to get the entirety of image A onto image B</p></center>
+                <b>Approach A</b>
+                <p>
+                    An initial heuristic that we employed, similar to what was employed earlier, involved simply taking the pixel in the top left corner and saving that pixel value as the given background color. Now, in the process of doing inverse warpings from the shirt to the user, we will simply conduct a check to ensure that no pixels exactly equal to the background color are mapped over to the final image. We achieved certain levels of success, however clearly this heuristic fails when their are pixels values within the shirt itself that are equal to the background color.
+                </p>
+                <center><img src="assets/images/homographyNASA.png" class="img-fluid" height="200" width="200"></center>
+                <center><img src="assets/images/homographyCHAMP.png" class="img-fluid" height="200" width="200"></center>
+                <center><p>
+                    Results of homography using approach A
+                </p></center>
+                <b>Approach B</b>
+                <p>
+                    FILL IN STUFF HERE WITH SURAJ'S SHTUFF... 
+                </p>
+                <b>Approach C</b>
+                <p>
+                    Despite all this, one flaw that both images had was the fact that shadows caused by the shirt would also be warped onto the model image which proved to be problematic as it detracted from the overall appearance. To help counteract this, we applied some form of filtering in an attempt to remove undesired colors. Theoretically, with the shadow being such a minimal part of the image, using a clustering algorithm like kmeans with a small enough k-value would eliminate the typical grey shadow line. Unfortunately, this value of k greatly varies with the type of shirt that is in question. As a result of this high variability, clustering the shirt with a predetermined k-value would either remove too many colors and thus detract from the image overall or remove too few in which case the shadow line still remained.
+                </p>
+                <center><img src="assets/images/quantization_lowK.png" class="img-fluid" height="200" width="200"></center>
+                <center><img src="assets/images/quantization_highK.png" class="img-fluid" height="200" width="200"></center>
+                <center><p>
+                    To the left is the result of kmeans clustering with a low k-value. The shadow is removed but along with it are a lot of the colors making the shirt look flat. To the right is the result of kmeans clustering with a high k-value. The shadow is unfortunately still present.
+                </p></center>
+            </div>
+        </div>
+        
         <div class="col-sm-12">
           <h2>Sample Outputs</h2>
           <hr>
@@ -217,9 +258,15 @@
           <h2>Future Work</h2>
           <hr>
             <div class="container-fluid">
-                <p>
-                  TODO
-                </p>
+                <li>
+                    We want to be able to find a way to automatically detect and remove the area of the shirt directly behind the neck where typically the shirt label and tags are located. In our current implementation, the user’s neck is placed above the shirt. Typically, 3D modelling would take care of this problem by placing the user “in” the shirt. However, since we are taking a 2D approach, more clever solutions will be needed to handle this situation.
+                </li>
+                <li>
+                    We still do not have a foolproof solution to the issue with the shadows along the edge of the shirt. Not all shirts display this property of having shadows, however for those that do we will need to handle this situation. We hope to apply some form of filtering to blend out these shadows so that the resulting homographies look cleaner. 
+                </li>
+                <li>
+                    The resulting homographies are not always clean and 100% on top of the user. As a next step, we want to completely remove user input (other than simply requiring the user to select the desired shirt and their pose). We hope to accomplish this by using automatic corner detection while simultaneously finding optimal corresponding points by using these edges. This should theoretically make the homography cleaner and more accurate while removing the painstaking process of having to select correspondences.  
+                </li>
 
             </div>
         </div>
