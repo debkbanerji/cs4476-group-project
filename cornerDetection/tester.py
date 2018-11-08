@@ -2,7 +2,6 @@ from backgroundRemover import foregroundMask
 from cornerDetector import getAllCorners
 
 from PIL import Image
-import os
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,7 +20,6 @@ for i in range(0, len(input_im_filenames)):
     subplot[i][1].imshow(background_image)
 
     all_harris_corners = getAllCorners(input_image)
-    print(all_harris_corners)
 
     subplot[i][2].imshow(input_image)
     if len(all_harris_corners) > 0:

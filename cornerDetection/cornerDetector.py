@@ -2,7 +2,7 @@ import numpy as np
 from skimage.feature import corner_harris, corner_peaks
 from backgroundRemover import foregroundMask
 
-k = None
+k = 0.05
 
 
 def getAllCorners(im):
