@@ -3,12 +3,12 @@ from scipy import ndimage
 import numpy as np
 
 
-def foregroundMask(shirtImg):
-    maxShirtVal = np.max(shirtImg)
-    shirtImgScaled = shirtImg * 255 / maxShirtVal
+def foregroundMask(im):
+    im = np.array(im)
+    maxShirtVal = np.max(im)
+    shirtImgScaled = im * 255 / maxShirtVal
     grayIm = color.rgb2gray(shirtImgScaled)
     grayIm = filters.apply_hysteresis_threshold(grayIm, 0.15, 0.35)
-
     sobelEdges = filters.sobel(grayIm)
     filledEdges = np.array(ndimage.binary_fill_holes(sobelEdges), dtype=np.bool)
     if filledEdges[0, 0]:
