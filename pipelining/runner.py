@@ -1,7 +1,6 @@
 from utils import ImageWidget
 import matplotlib.pyplot as plt
 from scipy import misc
-from backgroundRemover import foregroundMask
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog, QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import QEventLoop, QTimer
