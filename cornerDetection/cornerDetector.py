@@ -17,6 +17,20 @@ def getAllCorners(im):
 
 def getShirtCorners(shirt_im):
     detectedCorners = getAllCorners(shirt_im)
-    # TODO: Implement
     result = {}
+    lowestCornerIndex = 0
+    for cornerIndex in range(detectedCorners.shape[0]):
+        corner = detectedCorners[cornerIndex]
+        if corner[0] > detectedCorners[lowestCornerIndex][0]:
+            lowestCornerIndex = cornerIndex
+    secondLowestCornerIndex = 1 if (lowestCornerIndex == 0) else 0
+    for cornerIndex in range(detectedCorners.shape[0]):
+        corner = detectedCorners[cornerIndex]
+        if cornerIndex != lowestCornerIndex and corner[0] > detectedCorners[secondLowestCornerIndex][0]:
+            secondLowestCornerIndex = cornerIndex
+    result['bottomLeftCorner'] = detectedCorners[lowestCornerIndex]
+    result['bottomRightCorner'] = detectedCorners[secondLowestCornerIndex]
+    if result['bottomRightCorner'][1] < result['bottomLeftCorner'][1]:
+        result['bottomRightCorner'], result['bottomLeftCorner'] \
+            = result['bottomLeftCorner'], result['bottomRightCorner']
     return result
