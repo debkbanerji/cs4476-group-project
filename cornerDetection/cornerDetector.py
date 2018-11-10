@@ -1,6 +1,7 @@
 import numpy as np
 from skimage.feature import corner_harris, corner_peaks
-from backgroundRemover import foregroundMask
+
+from cornerDetection.backgroundRemover import foregroundMask
 
 k = 0.05
 
