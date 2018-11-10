@@ -33,4 +33,16 @@ def getShirtCorners(shirt_im):
     if result['bottomRightCorner'][1] < result['bottomLeftCorner'][1]:
         result['bottomRightCorner'], result['bottomLeftCorner'] \
             = result['bottomLeftCorner'], result['bottomRightCorner']
+    rightMostCornerIndex = 0
+    for cornerIndex in range(detectedCorners.shape[0]):
+        corner = detectedCorners[cornerIndex]
+        if corner[1] > detectedCorners[rightMostCornerIndex][1]:
+            rightMostCornerIndex = cornerIndex
+    result['rightSleeveTopCorner'] = detectedCorners[rightMostCornerIndex]
+    leftMostCornerIndex = 0
+    for cornerIndex in range(detectedCorners.shape[0]):
+        corner = detectedCorners[cornerIndex]
+        if corner[1] < detectedCorners[leftMostCornerIndex][1]:
+            leftMostCornerIndex = cornerIndex
+    result['leftSleeveTopCorner'] = detectedCorners[leftMostCornerIndex]
     return result
