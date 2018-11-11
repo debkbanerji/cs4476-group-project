@@ -17,6 +17,7 @@ def getAllCorners(im):
 
 
 def getShirtCorners(shirt_im):
+    shirt_im = np.array(shirt_im)
     detectedCorners = getAllCorners(shirt_im)
     result = {}
     lowestCornerIndex = 0
@@ -46,4 +47,18 @@ def getShirtCorners(shirt_im):
         if corner[1] < detectedCorners[leftMostCornerIndex][1]:
             leftMostCornerIndex = cornerIndex
     result['leftSleeveTopCorner'] = detectedCorners[leftMostCornerIndex]
+    midLevelCorners = []
+    pointSeparationDelta0 = shirt_im.shape[0] / 100
+    for cornerIndex in range(detectedCorners.shape[0]):
+        corner = detectedCorners[cornerIndex]
+        if result['leftSleeveTopCorner'][0] + pointSeparationDelta0 < \
+                corner[0] < result['bottomLeftCorner'][0] - pointSeparationDelta0:
+            midLevelCorners.append(corner)
+    midLevelCorners = sorted(midLevelCorners, key=lambda x: x[1])
+    if len(midLevelCorners) > 0:
+        leftMidCorner = midLevelCorners[0]
+        rightMidCorner = midLevelCorners[len(midLevelCorners) - 1]
+        result['leftSleeveBottomCorner'] = leftMidCorner
+        result['rightSleeveBottomCorner'] = rightMidCorner
+        midPointXVal = (result['leftSleeveBottomCorner'][1] - result['rightSleeveBottomCorner'][1]) / 2
     return result

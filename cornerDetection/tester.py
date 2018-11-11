@@ -25,7 +25,6 @@ for i in range(0, len(input_im_filenames)):
     if len(all_harris_corners) > 0:
         subplot[i][2].scatter(all_harris_corners[:, 1], all_harris_corners[:, 0])
 
-
     target_corners = getShirtCorners(input_image)
     target_corner_list = []
     for key, val in target_corners.items():
