@@ -49,11 +49,12 @@ def getShirtCorners(shirt_im):
             leftMostCornerIndex = cornerIndex
     result['leftSleeveTopCorner'] = detectedCorners[leftMostCornerIndex]
     midLevelCorners = []
-    pointSeparationDelta0 = shirt_im.shape[0] / 100
+    pointSeparationDelta0 = shirt_im.shape[0] / 20
+    pointSeparationDelta1 = shirt_im.shape[1] / 20
     for cornerIndex in range(detectedCorners.shape[0]):
         corner = detectedCorners[cornerIndex]
-        if result['leftSleeveTopCorner'][0] + pointSeparationDelta0 < \
-                corner[0] < result['bottomLeftCorner'][0] - pointSeparationDelta0:
+        if result['leftSleeveTopCorner'][0] < corner[0] < result['bottomLeftCorner'][0] - pointSeparationDelta0\
+                and result['leftSleeveTopCorner'][1] + pointSeparationDelta1 < corner[1] < result['rightSleeveTopCorner'][1] - pointSeparationDelta1:
             midLevelCorners.append(corner)
     midLevelCorners = sorted(midLevelCorners, key=lambda x: x[1])
     if len(midLevelCorners) > 0:
@@ -65,7 +66,7 @@ def getShirtCorners(shirt_im):
     rightShoulderCorner = np.array([shirt_im.shape[0] - 1, 0], dtype=np.int64)
 
     xMult = 1
-    yMult = -1
+    yMult = -1.5
     for y in range(shirt_im.shape[0]):
         for x in range(shirt_im.shape[1]):
             if foreground_mask_im[y, x]:

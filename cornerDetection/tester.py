@@ -6,7 +6,10 @@ import matplotlib.pyplot as plt
 from cornerDetection.backgroundRemover import foregroundMask
 from cornerDetection.cornerDetector import getShirtCorners, getAllCorners
 
-input_im_filenames = ['../proposal/assets/images/black-shirt.png', '../proposal/assets/images/blue-shirt.jpg']
+input_im_filenames = [
+    '../proposal/assets/images/black-shirt.png',
+    '../proposal/assets/images/blue-shirt.jpg',
+    '../pipelining/images/catShirt.jpeg']
 
 f, subplot = plt.subplots(len(input_im_filenames), 4)
 f.suptitle('Testing corner detection and assignment')
