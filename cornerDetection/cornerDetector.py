@@ -61,9 +61,9 @@ def getShirtCorners(shirt_im):
         rightMidCorner = midLevelCorners[len(midLevelCorners) - 1]
         result['leftSleeveBottomCorner'] = leftMidCorner
         result['rightSleeveBottomCorner'] = rightMidCorner
-        midPointXVal = (result['leftSleeveBottomCorner'][1] - result['rightSleeveBottomCorner'][1]) / 2
     leftShoulderCorner = np.array([shirt_im.shape[0] - 1, shirt_im.shape[1] - 1], dtype=np.int64)
     rightShoulderCorner = np.array([shirt_im.shape[0] - 1, 0], dtype=np.int64)
+
     xMult = 1
     yMult = -1
     for y in range(shirt_im.shape[0]):
@@ -77,4 +77,20 @@ def getShirtCorners(shirt_im):
                     rightShoulderCorner[0] = y
     result['leftShoulderCorner'] = leftShoulderCorner
     result['rightShoulderCorner'] = rightShoulderCorner
+
+    leftNeckCorner = np.array([shirt_im.shape[0] - 1, shirt_im.shape[1] - 1], dtype=np.int64)
+    rightNeckCorner = np.array([shirt_im.shape[0] - 1, 0], dtype=np.int64)
+    for y in range(shirt_im.shape[0]):
+        for x in range(shirt_im.shape[1]):
+            if foreground_mask_im[y, x]:
+                if abs(x - result['leftShoulderCorner'][1]) < abs(x - result['rightShoulderCorner'][1]) \
+                        and leftNeckCorner[0] > y:
+                    leftNeckCorner[1] = x
+                    leftNeckCorner[0] = y
+                if abs(x - result['rightShoulderCorner'][1]) < abs(x - result['leftShoulderCorner'][1]) \
+                        and rightNeckCorner[0] > y:
+                    rightNeckCorner[1] = x
+                    rightNeckCorner[0] = y
+    result['leftNeckCorner'] = leftNeckCorner
+    result['rightNeckCorner'] = rightNeckCorner
     return result
