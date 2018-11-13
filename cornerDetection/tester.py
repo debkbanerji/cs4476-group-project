@@ -9,7 +9,8 @@ from cornerDetection.cornerDetector import getShirtCorners, getAllCorners
 input_im_filenames = [
     '../proposal/assets/images/black-shirt.png',
     '../proposal/assets/images/blue-shirt.jpg',
-    '../pipelining/images/catShirt.jpeg']
+    '../pipelining/images/catShirt.jpeg',
+    '../pipelining/images/usaShirt.jpeg']
 
 f, subplot = plt.subplots(len(input_im_filenames), 4)
 f.suptitle('Testing corner detection and assignment')
