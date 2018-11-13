@@ -19,7 +19,7 @@ for i in range(0, len(input_im_filenames)):
     background_image = foregroundMask(input_image)
     subplot[i][1].imshow(background_image)
 
-    all_harris_corners = getAllCorners(input_image)
+    all_harris_corners = getAllCorners(background_image)
 
     subplot[i][2].imshow(input_image)
     if len(all_harris_corners) > 0:
