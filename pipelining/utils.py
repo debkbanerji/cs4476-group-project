@@ -12,12 +12,12 @@ from PyQt5.QtGui import QImage, QPixmap
 
 
 class ImageWidget(QWidget):
-    def __init__(self, imageName, saveName=None):
+    def __init__(self, imageName, saveName=None, numPoints=None):
         super().__init__()
         self.layout = QVBoxLayout()
         self.imageName = imageName
         self.saveName = saveName
-
+        self.numPoints = numPoints
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
         # self.toolbar = NavigationToolbar(self.canvas, self)
@@ -64,7 +64,19 @@ class ImageWidget(QWidget):
 
         # set the layout
     def savePoints(self):
-        np.save(str(self.saveName + 'Points.npy'), np.array(self.correspondenceList))
+        print(np.array(self.correspondenceList))
+        if len(self.correspondenceList) < self.numPoints:
+            self.correspondenceList = [] # reset points
+            self.displayImage()
+            raise Exception('Not enough points selected. Please select ' + str(self.numPoints) +  ' points.')
+            # if buttonReply == QMessageBox.Yes:
+            #     print('Yes clicked.')
+            #     self.addShirt()
+            # else:
+            #     print('User is done adding shirts.')
+            #     return
+        else:
+            np.save(str(self.saveName + 'Points.npy'), np.array(self.correspondenceList))
         # self.close()
 
 
@@ -78,12 +90,13 @@ class ImageWidget(QWidget):
 
         def onclick(event):
             if event.inaxes is ax:
-                self.correspondenceList.append(np.array((event.xdata, event.ydata)))
-                ax.plot(event.xdata, event.ydata, 'rx')
-                ax.annotate(len(self.correspondenceList), (event.xdata, event.ydata))
-                ax.margins(0)
-                print(event.xdata, event.ydata)
-                self.canvas.draw()
+                if self.numPoints is not None and len(self.correspondenceList) < self.numPoints:
+                    self.correspondenceList.append(np.array((event.xdata, event.ydata)))
+                    ax.plot(event.xdata, event.ydata, 'rx')
+                    ax.annotate(len(self.correspondenceList), (event.xdata, event.ydata))
+                    ax.margins(0)
+                    print(event.xdata, event.ydata)
+                    self.canvas.draw()
 
         if self.saveName is not None: # if clicking a reference image, nothing will happen
             cid = self.canvas.mpl_connect('button_press_event', onclick)
