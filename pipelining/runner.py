@@ -55,6 +55,7 @@ class SeamApp(QWidget):
         if self.currentImageWidget is not None:
             try:
                 self.currentImageWidget.savePoints()
+                np.save("userImage.npy", misc.imread(self.currentImageName))
                 self.addShirt()
             except Exception as err:
                 messageBox = QErrorMessage()
@@ -144,7 +145,7 @@ class SeamApp(QWidget):
 
         # user loads in image of self just once and selects correspondences
         self.currentImageName = self.openImageFileDialog("Select image of yourself")
-        self.collectCorrespondences(self.currentImageName, self.referenceImageWidget, "userImage")
+        self.collectCorrespondences(self.currentImageName, self.referenceImageWidget, "user")
         # self.collectCorrespondences(self.userImageName, self.leftSleeve, "userImageLeftSleeve")
         # self.collectCorrespondences(self.userImageName, self.rightSleeve, "userImageRightSleeve")
         # self.collectCorrespondences(self.userImageName, self.torso, "userImageTorso")
