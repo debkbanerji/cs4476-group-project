@@ -7,8 +7,7 @@ from scipy import misc
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog, QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox, QErrorMessage
 from PyQt5.QtCore import QEventLoop, QTimer
 from PyQt5.QtGui import QIcon, QImage, QPixmap
-from cornerDetection.backgroundRemover import foregroundMask
-from cornerDetection.cornerDetector import getShirtCorners
+from cornerDetection.cornerDetector import getShirtCorners, foregroundMask
 #https://stackoverflow.com/questions/35992088/why-mousemoveevent-does-nothing-in-pyqt5
 class SeamApp(QWidget):
     # source: https://pythonspot.com/pyqt5-image/
@@ -61,7 +60,7 @@ class SeamApp(QWidget):
                 messageBox = QErrorMessage()
                 messageBox.showMessage(err.args[0])
                 messageBox.exec()
-                
+
 
             # for i in reversed(range(self.layout().count())):
             #     item = self.layout().itemAt(i).widget()
@@ -77,7 +76,7 @@ class SeamApp(QWidget):
             # now ask for t-shirt image uploads
 
 
-    def saveShirtCorners(self, shirtCorners):
+    def saveShirtCorners(self, shirtCorners, saveName):
 
         # leftNeckCorner, leftShoulderCorner, leftSleeveTopCorner, leftSleeveBottomCorner, bottomLeftCorner
         # saved as y,x, need to change to x,y
@@ -104,7 +103,7 @@ class SeamApp(QWidget):
         y, x = shirtCorners['rightNeckCorner']
         savedCorners = np.vstack((savedCorners, [x, y]))
 
-        np.save("t_shirt" + str(self.countShirts) + "Points.npy", savedCorners)
+        np.save(saveName + "Points.npy", savedCorners)
 
 
     def addAnotherShirt(self):
@@ -122,8 +121,14 @@ class SeamApp(QWidget):
         self.collectingTShirtPts = True
         if self.currentImageName is not None:
             self.countShirts += 1
-            shirtCorners = getShirtCorners(misc.imread(self.currentImageName))
-            self.saveShirtCorners(shirtCorners)
+            shirtSaveName = "t_shirt" + str(self.countShirts)
+            shirtImg = misc.imread(self.currentImageName)
+            shirtCorners, maskWithoutCollar = getShirtCorners(shirtImg)
+
+            np.save(shirtSaveName + "Img.npy", shirtImg)
+            np.save(shirtSaveName + "Mask.npy", maskWithoutCollar)
+            self.saveShirtCorners(shirtCorners, shirtSaveName)
+
             self.addAnotherShirt()
         # foregroundMask(misc.imread(self.currentImageName, mode='RGBA'), "t_shirt" + str(self.countShirts))
         # # self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage], # "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1])

@@ -1,10 +1,48 @@
 import numpy as np
 from skimage.feature import corner_harris, corner_peaks
-
-from cornerDetection.backgroundRemover import foregroundMask
+from skimage import color, filters
+from scipy import ndimage
+# from backgroundRemover import foregroundMask
 
 k = 0.05
 
+def foregroundMask(im):
+    im = np.array(im)
+    maxShirtVal = np.max(im)
+    shirtImgScaled = im * 255 / maxShirtVal
+    grayIm = color.rgb2gray(shirtImgScaled)
+    grayIm = filters.apply_hysteresis_threshold(grayIm, 0.15, 0.35)
+    sobelEdges = filters.sobel(grayIm)
+    filledEdges = np.array(ndimage.binary_fill_holes(sobelEdges), dtype=np.bool)
+    if filledEdges[0, 0]:
+        filledEdges = np.logical_not(filledEdges)
+        # want the top left corner (which denotes background) to be marked as False
+    return filledEdges
+
+def foregroundMaskWithoutCollar(imMask, shirtCorners):
+    # imMask should be the original mask used to find the shirt corners
+    # shirtCorners should be the dictionary of points
+    leftNeckCorner = shirtCorners['leftNeckCorner']
+    rightNeckCorner = shirtCorners['rightNeckCorner']
+    collarCenterX = (rightNeckCorner[0] - leftNeckCorner[0]) // 2 + leftNeckCorner[0]
+    collarCenterY = (rightNeckCorner[1] - leftNeckCorner[1]) // 2 + leftNeckCorner[1]
+    leftShoulder = shirtCorners['leftShoulderCorner']
+    rightShoulder = shirtCorners['rightShoulderCorner']
+    avgShouldHeight = (rightShoulder[1] - leftShoulder[1]) // 2 + leftShoulder[1]
+
+    radius = (rightNeckCorner[0] - leftNeckCorner[0]) // 2
+    imMaskCopy = imMask.copy()
+
+    for y, row in enumerate(imMask):
+        for x, col in enumerate(row):
+            # if y > avgShouldHeight:
+            #     break # no need to check below shoulder height
+            if col:
+                # if the current spot is marked True, check if it should be False
+                if (y - collarCenterY)**2 + (x - collarCenterX)**2 <= radius**2:
+                    imMaskCopy[y][x] = False
+
+    return imMaskCopy
 
 def getAllCorners(im):
     foreground_mask_im = np.array(foregroundMask(im))
@@ -94,4 +132,7 @@ def getShirtCorners(shirt_im):
                     rightNeckCorner[0] = y
     result['leftNeckCorner'] = leftNeckCorner
     result['rightNeckCorner'] = rightNeckCorner
-    return result
+
+    maskWithoutCollar = foregroundMaskWithoutCollar(foreground_mask_im, result)
+
+    return result, maskWithoutCollar
