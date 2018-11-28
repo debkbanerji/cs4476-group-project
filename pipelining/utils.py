@@ -12,7 +12,7 @@ from PyQt5.QtGui import QImage, QPixmap
 
 
 class ImageWidget(QWidget):
-    def __init__(self, imageName, saveName=None, numPoints=None):
+    def __init__(self, imageName, saveName=None, numPoints=None, imageArray=None):
         super().__init__()
         self.layout = QVBoxLayout()
         self.imageName = imageName
@@ -20,6 +20,7 @@ class ImageWidget(QWidget):
         self.numPoints = numPoints
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
+        self.imageArray = imageArray
         # self.toolbar = NavigationToolbar(self.canvas, self)
 
         # self.layout.addWidget(self.toolbar)
@@ -83,7 +84,10 @@ class ImageWidget(QWidget):
     def displayImage(self):
         self.figure.clear()
         ax = self.figure.add_subplot(111)
-        image_array = plt.imread(self.imageName)
+        if self.imageArray is not None:
+            image_array = self.imageArray
+        else:
+            image_array = plt.imread(self.imageName)
         ax.imshow(image_array)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
