@@ -242,7 +242,7 @@ def computeH(t1, t2):
     return homography
 
 
-def warpImage(inputIm, refIm, H):
+def warpImage(inputIm, image, refIm, H):
     homography = H
     inverted_H = np.linalg.inv(homography)
 
@@ -321,20 +321,15 @@ def warpImage(inputIm, refIm, H):
             if input_coords_actual[0] >= 0 and input_coords_actual[0] < inputIm.shape[1]:
                 if input_coords_actual[1] >= 0 and input_coords_actual[1] < inputIm.shape[0]:
                     if not np.array_equal(BACKGROUND_PIXEL, inputIm[input_coords_actual[1]][input_coords_actual[0]]):
-                        stitchedImg[rows][cols] = inputIm[input_coords_actual[1]][input_coords_actual[0]]
+                        stitchedImg[rows][cols] = image[input_coords_actual[1]][input_coords_actual[0]]
 
-    fig, ax = plt.subplots(1, 3)
-
-    img_vec1 = newImg
+    fig, ax = plt.subplots(1, 2)
     img_vec2 = stitchedImg
-
-    ax[0].imshow(img_vec1)
-    ax[1].imshow(img_vec2)
-
+    ax[0].imshow(img_vec2)
     blurred = cv2.medianBlur(stitchedImg, 15)
     sharpened = misc.imfilter(blurred, 'sharpen')
-    ax[2].imshow(sharpened)
-
+    ax[1].imshow(sharpened)
+    plt.title('Merged Shirt with blurring')
     plt.show()
 
 
@@ -343,6 +338,7 @@ def mapShirt(shirt):
     image_path = 'images/'
 
     shirt_img = plt.imread(shirt)
+    shirt_foreground_img = np.asarray(np.load('t_shirt1Mask.npy'))
     human_img = plt.imread(image_path + human)
 
     pts_human = np.asarray(np.load('userPoints.npy'))
@@ -352,7 +348,8 @@ def mapShirt(shirt):
     shirtpoints = [pts_shirt[:, 0], pts_shirt[:, 1]]
 
     homography = computeH(shirtpoints, userpoints)
-    warpImage(shirt_img, human_img, homography)
+    warpImage(shirt_foreground_img, shirt_img, human_img, homography)
+
 
 if __name__ == "__main__":
     shirt = pipeline()
