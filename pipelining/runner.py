@@ -1,14 +1,15 @@
+import cv2
 import sys
-sys.path.append('../')
 import numpy as np
-from utils import ImageWidget
 import matplotlib.pyplot as plt
+from pipelining.utils import ImageWidget
 from scipy import misc
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit, QFileDialog, QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox, QErrorMessage
-from PyQt5.QtCore import QEventLoop, QTimer
-from PyQt5.QtGui import QIcon, QImage, QPixmap
-from cornerDetection.cornerDetector import getShirtCorners, foregroundMask
-#https://stackoverflow.com/questions/35992088/why-mousemoveevent-does-nothing-in-pyqt5
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox, QErrorMessage
+from cornerDetection.cornerDetector import getShirtCorners
+sys.path.append('../')
+global currentImageName
+
+
 class SeamApp(QWidget):
     # source: https://pythonspot.com/pyqt5-image/
     def __init__(self):
@@ -29,7 +30,6 @@ class SeamApp(QWidget):
         self.referenceImageWidget = ImageWidget(self.referenceImage)
         self.collectingTShirtPts = False
 
-
         # self.referenceWidgetList = [ImageWidget(s[0]) for s in self.referenceImageList]
 
         # self.leftSleeve = ImageWidget(str())
@@ -48,7 +48,7 @@ class SeamApp(QWidget):
 
         self.setLayout(QVBoxLayout())
 
-        #self.layout = QHBoxLayout()
+        # self.layout = QHBoxLayout()
         self.initUI()
 
     def submitPoints(self):
@@ -62,12 +62,11 @@ class SeamApp(QWidget):
                 messageBox.showMessage(err.args[0])
                 messageBox.exec()
 
-
             # for i in reversed(range(self.layout().count())):
             #     item = self.layout().itemAt(i).widget()
             #     if item:
             #         item.setParent(None)
-            #self.layout = QHBoxLayout()
+            # self.layout = QHBoxLayout()
             # self.layout.addWidget(self.submitButton)
             # self.currentRefImage += 1
             # self.currentRefImage %= len(self.referenceImageList)
@@ -76,15 +75,13 @@ class SeamApp(QWidget):
             # save the points for the user's image
             # now ask for t-shirt image uploads
 
-
     def saveShirtCorners(self, shirtCorners, saveName):
-
+        global currentImageName
         # leftNeckCorner, leftShoulderCorner, leftSleeveTopCorner, leftSleeveBottomCorner, bottomLeftCorner
         # saved as y,x, need to change to x,y
         # print(shirtCorners['leftNeckCorner'].shape)
         y, x = shirtCorners['leftNeckCorner']
         savedCorners = np.array([x, y])
-
         y, x = shirtCorners['leftShoulderCorner']
         savedCorners = np.vstack((savedCorners, [x, y]))
         y, x = shirtCorners['leftSleeveTopCorner']
@@ -106,6 +103,7 @@ class SeamApp(QWidget):
 
         np.save(saveName + "Points.npy", savedCorners)
 
+        currentImageName = self.currentImageName
 
     def addAnotherShirt(self):
         buttonReply = QMessageBox.question(self, 'Add a Shirt', "Would you like to add another shirt?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -115,7 +113,6 @@ class SeamApp(QWidget):
         else:
             print('User is done adding shirts.')
             return
-
 
     def addShirt(self):
         self.currentImageName = self.openImageFileDialog("Select image of your T-Shirt")
@@ -129,11 +126,9 @@ class SeamApp(QWidget):
             np.save(shirtSaveName + "Img.npy", shirtImg)
             np.save(shirtSaveName + "Mask.npy", maskWithoutCollar)
             self.saveShirtCorners(shirtCorners, shirtSaveName)
-
             self.addAnotherShirt()
         # foregroundMask(misc.imread(self.currentImageName, mode='RGBA'), "t_shirt" + str(self.countShirts))
         # # self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage], # "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1])
-
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -154,16 +149,13 @@ class SeamApp(QWidget):
 
         # countShirts = 1
 
-
-            # tShirtImage = plt.imread(self.tShirtName)
-            # collectCorrespondences(self.tShirtName, self.userImageName)
-            # countShirts += 1
-            # downsize image to match user dimensions
-            # correspondences
-            # save image and correspondences
-            # ask about another picture
-
-
+        # tShirtImage = plt.imread(self.tShirtName)
+        # collectCorrespondences(self.tShirtName, self.userImageName)
+        # countShirts += 1
+        # downsize image to match user dimensions
+        # correspondences
+        # save image and correspondences
+        # ask about another picture
 
         #self.openFileNamesDialog()
         #self.saveFileDialog()
@@ -174,8 +166,7 @@ class SeamApp(QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,str(message), "","Images (*.png *.jpeg *.jpg)", options=options)
-        return fileName # let it return None
-
+        return fileName  # let it return None
 
     # https://www.programcreek.com/python/example/82618/PyQt5.QtWidgets.QLabel
     def collectCorrespondences(self, uploadedImage, referenceImageWidget, savePointsName):
@@ -192,7 +183,6 @@ class SeamApp(QWidget):
         vbox = QVBoxLayout()
         vbox.addLayout(hbox)
         vbox.addWidget(self.submitButton)
-
 
         # self.layout.addLayout(hbox)
         # self.layout.addWidget(self.submitButton)
@@ -221,10 +211,149 @@ class SeamApp(QWidget):
     #             else:
     #                 self.deleteItems(item.layout())
 
+
 def pipeline():
     app = QApplication(sys.argv)
     ex = SeamApp()
-    sys.exit(app.exec_())
+    try:
+        sys.exit(app.exec_())
+    finally:
+        return currentImageName
+
+
+def computeH(t1, t2):
+    pre_matrix = []
+    for i in range(len(t1[0])):
+        x1 = t1[0][i]
+        x2 = t1[1][i]
+
+        x1_prime = t2[0][i]
+        x2_prime = t2[1][i]
+
+        transposed1 = [x1, x2, 1, 0, 0, 0, -x1_prime * x1, -x1_prime * x2, -x1_prime]
+        transposed2 = [0, 0, 0, x1, x2, 1, -x2_prime * x1, -x2_prime * x2, -x2_prime]
+        pre_matrix.append(transposed1)
+        pre_matrix.append(transposed2)
+
+    matrix = np.matrix(pre_matrix)
+
+    u, s, v = np.linalg.svd(matrix)
+    homography = np.reshape(v[-1], (3, 3))
+    return homography
+
+
+def warpImage(inputIm, refIm, H):
+    homography = H
+    inverted_H = np.linalg.inv(homography)
+
+    input_maxRow = inputIm.shape[0]
+    input_maxCol = inputIm.shape[1]
+
+    BACKGROUND_PIXEL = inputIm[0][0]
+    print('background_pixel = ', BACKGROUND_PIXEL)
+
+    ## WARP ##
+    input_TOP_L = np.asarray(homography.dot(np.asarray([0, 0, 1])))
+    input_TOP_L_actual = input_TOP_L[0][0] / input_TOP_L[0][2], input_TOP_L[0][1] / input_TOP_L[0][2]
+    input_TOP_R = np.asarray(homography.dot(np.asarray([input_maxCol, 0, 1])))
+    input_TOP_R_actual = input_TOP_R[0][0] / input_TOP_R[0][2], input_TOP_R[0][1] / input_TOP_R[0][2]
+    input_BOT_L = np.asarray(homography.dot(np.asarray([0, input_maxRow, 1])))
+    input_BOT_L_actual = input_BOT_L[0][0] / input_BOT_L[0][2], input_BOT_L[0][1] / input_BOT_L[0][2]
+    input_BOT_R = np.asarray(homography.dot(np.asarray([input_maxCol, input_maxRow, 1])))
+    input_BOT_R_actual = input_BOT_R[0][0] / input_BOT_R[0][2], input_BOT_R[0][1] / input_BOT_R[0][2]
+
+    input_coords = []
+    input_coords.append(input_TOP_L_actual)
+    input_coords.append(input_TOP_R_actual)
+    input_coords.append(input_BOT_L_actual)
+    input_coords.append(input_BOT_R_actual)
+
+    input_smallest_x = min([x[0] for x in input_coords])
+    input_greatest_x = max([x[0] for x in input_coords])
+    input_smallest_y = min([x[1] for x in input_coords])
+    input_greatest_y = max([x[1] for x in input_coords])
+
+    # find 4 corners in new image
+    x_shape = int(input_greatest_x - input_smallest_x)
+    y_shape = int(input_greatest_y - input_smallest_y)
+
+    newImg = np.zeros((y_shape, x_shape, 3), dtype=np.uint8)
+    for rows in range(newImg.shape[0]):
+        for cols in range(newImg.shape[1]):
+            homogenous_coords = np.asarray([cols + input_smallest_x, rows + input_smallest_y, 1])
+            input_coords = np.asarray(inverted_H.dot(homogenous_coords))
+
+            # Convert out of homogenous
+            input_coords_normed = (input_coords[0][0] / input_coords[0][2], input_coords[0][1] / input_coords[0][2])
+            input_coords_actual = (int(input_coords_normed[0]),
+                                   int(input_coords_normed[1]))
+
+            if input_coords_actual[0] >= 0 and input_coords_actual[0] < inputIm.shape[1]:
+                if input_coords_actual[1] >= 0 and input_coords_actual[1] < inputIm.shape[0]:
+                    if not np.array_equal(BACKGROUND_PIXEL, inputIm[input_coords_actual[1]][input_coords_actual[0]]):
+                        newImg[rows][cols] = inputIm[input_coords_actual[1]][input_coords_actual[0]]
+
+    ## MERGE ##
+    # find 4 corners in new image
+    x_min = min(input_smallest_x, 0)
+    x_max = max(input_greatest_x, refIm.shape[1])
+    y_min = min(input_smallest_y, 0)
+    y_max = max(input_greatest_y, refIm.shape[0])
+
+    x_shape = int(x_max - x_min)
+    y_shape = int(y_max - y_min)
+
+    stitchedImg = np.zeros((y_shape, x_shape, 3), dtype=np.uint8)
+
+    for rows in range(stitchedImg.shape[0]):
+        for cols in range(stitchedImg.shape[1]):
+            homogenous_coords = np.asarray([int(cols + x_min), int(rows + y_min), 1])
+            input_coords = np.asarray(inverted_H.dot(homogenous_coords))
+
+            # Convert out of homogenous
+            input_coords_normed = (input_coords[0][0] / input_coords[0][2], input_coords[0][1] / input_coords[0][2])
+            input_coords_actual = (int(input_coords_normed[0]),
+                                   int(input_coords_normed[1]))
+
+            if rows + (y_min) >= 0 and rows + y_min < refIm.shape[0] and cols + x_min < refIm.shape[1] and (
+                    cols + (x_min)) >= 0:
+                stitchedImg[rows][cols] = refIm[int(rows + y_min)][int(cols + x_min)]
+            if input_coords_actual[0] >= 0 and input_coords_actual[0] < inputIm.shape[1]:
+                if input_coords_actual[1] >= 0 and input_coords_actual[1] < inputIm.shape[0]:
+                    if not np.array_equal(BACKGROUND_PIXEL, inputIm[input_coords_actual[1]][input_coords_actual[0]]):
+                        stitchedImg[rows][cols] = inputIm[input_coords_actual[1]][input_coords_actual[0]]
+
+    fig, ax = plt.subplots(1, 3)
+
+    img_vec1 = newImg
+    img_vec2 = stitchedImg
+
+    ax[0].imshow(img_vec1)
+    ax[1].imshow(img_vec2)
+
+    blurred = cv2.medianBlur(stitchedImg, 15)
+    sharpened = misc.imfilter(blurred, 'sharpen')
+    ax[2].imshow(sharpened)
+
+    plt.show()
+
+
+def mapShirt(shirt):
+    human = 'kirtan_img.jpg'
+    image_path = 'images/'
+
+    shirt_img = plt.imread(shirt)
+    human_img = plt.imread(image_path + human)
+
+    pts_human = np.asarray(np.load('userPoints.npy'))
+    userpoints = [pts_human[:, 0], pts_human[:, 1]]
+
+    pts_shirt = np.asarray(np.load('t_shirt1Points.npy'))
+    shirtpoints = [pts_shirt[:, 0], pts_shirt[:, 1]]
+
+    homography = computeH(shirtpoints, userpoints)
+    warpImage(shirt_img, human_img, homography)
 
 if __name__ == "__main__":
-    pipeline()
+    shirt = pipeline()
+    mapShirt(shirt)
