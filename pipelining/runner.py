@@ -2,11 +2,11 @@ import cv2
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from pipelining.utils import ImageWidget
+from utils import ImageWidget
 from scipy import misc
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QHBoxLayout, QPushButton, QVBoxLayout, QMessageBox, QErrorMessage
-from cornerDetection.cornerDetector import getShirtCorners
 sys.path.append('../')
+from cornerDetection.cornerDetector import getShirtCorners
 global currentImageName
 
 
