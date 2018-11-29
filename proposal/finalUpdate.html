@@ -169,7 +169,7 @@
                 <li style="margin-left: 2em"> rNC: Right Neck Corner </li>
                 <br>
 
-                <div id="myCarousel3" class="carousel slide" data-ride="carousel" style="width: 50%">
+                <div id="myCarousel3" class="carousel slide" data-ride="carousel" style="width: 50% ">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                       <li data-target="#myCarousel3" data-slide-to="0" class="active"></li>
@@ -207,7 +207,7 @@
                       <span class="glyphicon glyphicon-chevron-right"></span>
                       <span class="sr-only">Next</span>
                     </a>
-                  </div>
+                </div>
 
                   <div class="container-fluid">
                     <p><i>(Examples of an entirely, accurately labelled t-shirt image.)</i></p>
@@ -298,7 +298,7 @@
                     Next, we tried using sobel edges to detect the edges of the t-shirt and separate it from the
                     background. While the edge detection worked well, it was still hard to figure out how to set all the
                     values inside the shirt to be masked, because the designs on the t-shirt were also outlined by the
-                    sobel edge detector. Using a binary_fill_holes method allowed up to highlight the entire area inside
+                    sobel edge detector. Using a binary_fill_holes method allowed us to highlight the entire area inside
                     the shirt, filling in the areas with patterns and logos. However, the end result was not smooth
                     along the edges, as shown in the images below. With and without a gaussian smoothing filter, the
                     edges of the final result appeared very jagged.
@@ -423,9 +423,7 @@
 
                 <b>Experiment 3</b>
                 <p>
-                  Our current final output homography results in a shirt being properly placed onto the user. Unfortunately, the shirt itself is not perfect before we attach it to the user.There is often a gentle white line outlining the borders of the t-shirt. While minute in detail, this unwanted feature (from grabbing too much of the original shirt in the homography) definitely detracts from the overall appearance of the homography.
-
-                  To help account for this fact, we obtained the edges of the shirt mask and proceeded to apply a blurring filter on the edges of this mask by manually convolving a median blurring filter across the image. We needed to specifically target the edge of the shirt to ensure that the pattern/logos on the shirts were not distorted. Below are two images displaying the region that we identified as the edge of the image, with varying thicknesses.
+                  Our current final output homography results in a shirt being properly placed onto the user. Unfortunately, the shirt itself is not perfect before we attach it to the user.There is often a gentle white line outlining the borders of the t-shirt. While minute in detail, this unwanted feature (from grabbing too much of the original shirt in the homography) definitely detracts from the overall appearance of the homography. To help account for this fact, we created an "edge of the shirt" mask. Below are two images displaying the region that we identified as the edge of the image, with varying thicknesses. To calculate the t-shirt edge mask, we took the foreground mask and used a nxn window (where n controlls the width of the edge mask) and checked if all the values in that window in the foreground mask are the same. If there was a mix of foreground / background in that window, then we knew that we had identified an edge, and therefore set all the pixels in that window to True.
                 </p>
                 <div class="container-fluid">
                     <img src="assets/images/edge_detection_thick.png" class="img-fluid" style="width: 25%">
@@ -433,12 +431,21 @@
                     <p><i>(Examples of the edges of the shirt masks prior to convolving a median blurring filter across the edges. The first image uses a 10px border, and the 2nd uses a 25 px border.)</i></p>
                 </div>
                 <p>
-                  With this edge of shirt mask, the edges of this shirt can be blurred. However, when we applied this technique to the homography mappings it resulted in an unrealistic looking shirt overlaid on the user. For this reason, we didn't include this step in our final algorithm and would like to find an alternative way to remove this background-outline of the shirt.
+                 Using this mask, we proceeded to apply a blurring filter on the image of the t-shirt, thus blurring the edges. Then, with this t-shirt image with blurred edges, we applied the homography. However, when we applied this technique, it resulted in an unrealistic looking shirt overlaid on the user. This was because the blurring effect lightened the edges of the shirt due to the background, and actually ended up making the background color appear to seep into the rest of the shirt.
                 </p>
 
                 <div class="container-fluid">
                     <img src="assets/images/failed_blur.png" class="img-fluid" style="width: 25%">
                     <p><i>(An example final image when the shirt edges are first blurred to try to remove the white outline of the background.)</i></p>
+                </div>
+
+                <p>
+                  To try blurring the edge of the shirt in a different way, we mapped the t-shirt image onto the user using the foreground max and saved it into two separate images. Then, we blurred one of the images using a gaussian filter so that there was a blurry version of the target shirt overlaid on top of the user. Then, using the t-shirt edge mask, we went through all pixels marked as edges in the clear output image and replaced the pixels with the blurry corresponding point in the smoothed image. This allowed us to blur the edges of the shirt and get a more realistic looking final result.
+                </p>
+
+                <div class="container-fluid">
+                    <img src="assets/images/successful_blurredEdges.png" class="img-fluid" style="width: 25%">
+                    <p><i>(An example final image when the shirt edges are successfully blurred to hide the white outline of the background. Since we struggled to repeatably get the same results, we leave this single very successful case in our experiments section.)</i></p>
                 </div>
 
 
@@ -536,10 +543,16 @@
         <br>
         <div class="col-sm-12">
             <div class="container-fluid">
-                <h2>Future Work</h2>
+                <h2>Conclusion & Future Work</h2>
                 <hr>
+                <p>
+                  In our midterm report, we said that for the final project update we wanted to remove the back collar of the shirt from the homographies, remove the need for the user to identify corresponding points on their own uploaded image and in the t-shirt image, and remove the shadowing of the shirt from the homography. All in all, we did a good job on reaching those goals.
+                </p>
+                <p>
+                  We were able to identify the two points of the collar on the shirt and use those points to approximate a circle to describe the neckline and cut that section out of the foreground mask used during the homography. While we were unable to completely remove the need for user input, we were able to automatically identify points on the shirt. Ultimately, this was because in our interest point detection, we take advantage of the fact that t-shirt images are taken with very plain, solid color backgrounds. Because of this, we were not able to apply the same logic to the busier-background user-taken image of themselves, and imagine that it would be a difficult task to reliably be able to identify and correctly label the 10 interest points on a user-taken image. Additionally, as described in the experiments section, we made good headway on removing the shadowing of the shirt from the homography. We were able to get a single successful case of a blurred t-shirt edge, and would need to invest more time to testing other images to adjust the algorithm we used to do so. The following is a list of more features we would like to include in future iterations of our system:
+                </p>
                 <li>
-                    We still do not have a foolproof solution to the issue with the shadows along the edge of the shirt.
+                    We still do not have a reliable solution to the issue with the shadows along the edge of the shirt.
                     Not all shirts display this property of having shadows, however for those that do we will need to
                     handle
                     this situation. We hope to apply some form of filtering to blend out these shadows so that the
