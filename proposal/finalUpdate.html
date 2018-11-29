@@ -70,7 +70,7 @@
 
                 <div class="container-fluid">
                     <img src="assets/images/referenceShirt.png" class="img-fluid" style="width: 50%">
-                    <p><i>Shirt Reference for selecting Points</i></p>
+                    <p><i>(Shirt Reference for selecting Points.)</i></p>
                 </div>
 
                 <p>
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="container-fluid">
-                    <p><i>Examples of Background Identification in sample shirt images</i></p>
+                    <p><i>(Examples of Background Identification in sample shirt images.)</i></p>
                 </div>
 
                 <p>
@@ -119,7 +119,7 @@
                 </div>
 
                 <div class="container-fluid">
-                    <p><i>Shirt Images with Detected Corners</i></p>
+                    <p><i>(Shirt Images with Detected Corners.)</i></p>
                 </div>
 
                 <p>
@@ -147,7 +147,7 @@
 
                 <div class="container-fluid">
                     <img src="assets/images/labeledCorners1.png" class="img-fluid" style="width: 75%">
-                    <p><i>Labeled Corners using Linear Programming</i></p>
+                    <p><i>(Labeled Corners using Linear Programming.)</i></p>
                 </div>
 
                 <h5> Full Detection and Labelling System Test Cases </h5>
@@ -210,7 +210,7 @@
                   </div>
 
                   <div class="container-fluid">
-                    <p><i>Examples of an entirely, accurately labelled t-shirt image</i></p>
+                    <p><i>(Examples of an entirely, accurately labelled t-shirt image.)</i></p>
                   </div>
 
 
@@ -241,7 +241,7 @@
                 <div class="container-fluid">
                     <img src="assets/images/seamCarvingSuccess.png" class="img-fluid" style="width: 48%">
                     <img src="assets/images/seamCarvingFail.png" class="img-fluid" style="width: 48%">
-                    <p><i>Two failure cases we needed to consider when modifying the seam carving algorithm to work for modifying t-shirts.</i></p>
+                    <p><i>(Two failure cases we needed to consider when modifying the seam carving algorithm to work for modifying t-shirts.)</i></p>
                 </div>
 
                 <p>
@@ -264,8 +264,10 @@
 
                 <h4>Homography</h4>
                 <p>
-                  Write up here about general overview of homography and the fact that it uses the foreground mask to complete.
+                  To compute the proper homographies between the shirt and the user, we utilized the 10 points the user selected along with the 10 points that were detected from intelligent corner detection and labelling approach. With these 10 sets of correspondences directly mapping with each other, we had enough data to create a proper homography matrix. Lastly, we followed the principles of inverse warping to ensure that there were no leftover “holes” in the final image after warping the shirt onto the user. When completing the inverse warping, we also wanted to exclude any background pixels in our mapping; to do this, we referred to the foreground mask created in a prior step. From here, it was fairly trivial implementing this into our existing homography logic to only warp pixels that are identified as the shirt (foreground) onto our user. This process showed marked improvements over our previous existing approach due to the increased accuracy in background pixel detection. The final outputs of this approach are shown in the results section.
                 </p>
+
+
         </div>
         <div class="col-sm-12">
             <h2>Experiments and Results</h2>
@@ -315,9 +317,9 @@
                     a sobel edge detector to that result led to smoother results along the edge of the t-shirts.
                     Finally, using the same binary_fill_holes method would fill in the gaps, patterns, and logos on the
                     t-shirt. This sequence of steps resulted in the following smoother foreground masks, as shown below.
-                    With these masks, the homography and seam carving functions can be updated to be more effective at
+                    With these masks, the homography and seam carving functions are more effective at
                     ignoring the background and using the foreground. While the masking results are still not perfect,
-                    the use of this mask should help significantly improve the quality of the final output.
+                    The use of this mask has significantly improved the quality of the final output.
                 </p>
                 <div class="container-fluid">
 
@@ -350,7 +352,7 @@
                     <p><i>(Failed result of using a standard homography because our goal is not to get the entirety of
                         image A onto image B.)</i></p>
                 </div>
-                <b>Approach A</b>
+                <u>Approach A</u>
                 <p>
                     An initial heuristic that we employed, similar to what was employed earlier, involved simply taking
                     the pixel in the top left corner and saving that pixel value as the given background color. Now, in
@@ -369,7 +371,7 @@
                     <img src="assets/images/homographyAVENGERS.png" class="img-fluid" height="200" width="200">
                 </div>
                 <p><i>(Results of homography using approach A.)</i></p>
-                <b>Approach B</b>
+                <u>Approach B</u>
                 <p>
                     To find the most optimal way to warp an image we turned to our experimental work done below (see Experiment 1) with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing homography logic to only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach due to the increased accuracy in background pixel detection.
                 </p>
@@ -380,6 +382,26 @@
                 <p><i>
                     (Results of homography using approach B.)
                 </i></p>
+
+                <b>Experiment 3</b>
+                <p>
+                  Our current final output homography results in a shirt being properly placed onto the user. Unfortunately, the shirt itself is not perfect before we attach it to the user.There is often a gentle white line outlining the borders of the t-shirt. While minute in detail, this unwanted feature (from grabbing too much of the original shirt in the homography) definitely detracts from the overall appearance of the homography.
+
+                  To help account for this fact, we obtained the edges of the shirt mask and proceeded to apply a blurring filter on the edges of this mask by manually convolving a median blurring filter across the image. We needed to specifically target the edge of the shirt to ensure that the pattern/logos on the shirts were not distorted. Below are two images displaying the region that we identified as the edge of the image, with varying thicknesses.
+                </p>
+                <div class="container-fluid">
+                    <img src="assets/images/edge_detection_thick.png" class="img-fluid" style="width: 25%">
+                    <img src="assets/images/edge_detection_thin.png" class="img-fluid" style="width: 25%">
+                    <p><i>(Examples of the edges of the shirt masks prior to convolving a median blurring filter across the edges. The first image uses a 10px border, and the 2nd uses a 25 px border.)</i></p>
+                </div>
+                <p>
+                  With this edge of shirt mask, the edges of this shirt can be blurred. However, when we applied this technique to the homography mappings it resulted in an unrealistic looking shirt overlaid on the user. For this reason, we didn't include this step in our final algorithm and would like to find an alternative way to remove this background-outline of the shirt.
+                </p>
+
+                <div class="container-fluid">
+                    <img src="assets/images/failed_blur.png" class="img-fluid" style="width: 25%">
+                    <p><i>(An example final image when the shirt edges are first blurred to try to remove the white outline of the background.)</i></p>
+                </div>
 
 
                 <h4>Results of System</h4>
@@ -396,19 +418,11 @@
                 <h2>Future Work</h2>
                 <hr>
                 <li>
-                    We want to be able to find a way to automatically detect and remove the area of the shirt directly
-                    behind the neck where typically the shirt label and tags are located. In our current implementation,
-                    the user’s neck is placed above the shirt. Typically, 3D modelling would take care of this problem
-                    by
-                    placing the user “in” the shirt. However, since we are taking a 2D approach, more clever solutions
-                    will be needed to handle this situation.
-                </li>
-                <li>
                     We still do not have a foolproof solution to the issue with the shadows along the edge of the shirt.
                     Not all shirts display this property of having shadows, however for those that do we will need to
                     handle
                     this situation. We hope to apply some form of filtering to blend out these shadows so that the
-                    resulting homographies look cleaner.
+                    resulting homographies look cleaner. While smoothing the entire shirt can solve the issue of shadows, it limits the system to only work very well on solid colored t-shirts which is not ideal
                 </li>
                 <li>
                     The resulting homographies are not always clean and 100% on top of the user. As a next step, we want
@@ -418,11 +432,14 @@
                     finding
                     optimal corresponding points by using these edges. This should theoretically make the homography
                     cleaner and more accurate while removing the painstaking process of having to select
-                    correspondences.
+                    correspondences. By further reducing human input we can also increase the convenience of using our tool, therefore making it more attractive to use.
                 </li>
                 <li>
                     We would like to be able to fit the shirt on a variety of poses, not just the standard one shown.
                     This would allow the user to get a different view than they would normally see.
+                </li>
+                <li>
+                    We would like to make our system more reliable about identifying the corresponding points in certain edge case scenarios. For example, when the shirt is light colored and in a light background, the algorithm for identifying the foreground mask is not very accurate, resulting in poorly identified corresponding points and then also a poor homography. We would like to make our algorithm more robust to these situations so that the user is not limited in the shirts they would like to wear.
                 </li>
 
             </div>
