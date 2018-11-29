@@ -138,13 +138,14 @@ class SeamApp(QWidget):
         # # self.collectCorrespondences(self.currentImageName, self.referenceWidgetList[self.currentRefImage], # "t_shirt" + str(self.countShirts) + self.referenceImageList[self.currentRefImage][1])
 
     def mapShirt(self, shirt):
-        human = 'kirtan_img.jpg'
+        #human = 'kirtan_img.jpg'
+        human = self.userImageName
         image_path = 'images/'
 
         shirt_img = shirt
         mask_image_name = 't_shirt' + str(self.countShirts) + 'Mask.npy'
         shirt_foreground_img = np.asarray(np.load(mask_image_name))
-        human_img = plt.imread(image_path + human)
+        human_img = plt.imread(human)
 
         pts_human = np.asarray(np.load('userPoints.npy'))
         userpoints = [pts_human[:, 0], pts_human[:, 1]]
@@ -307,6 +308,7 @@ class SeamApp(QWidget):
 
         # user loads in image of self just once and selects correspondences
         self.currentImageName = self.openImageFileDialog("Select image of yourself")
+        self.userImageName = self.currentImageName
         self.collectCorrespondences(self.currentImageName, self.referenceImageWidget, "user")
         # self.collectCorrespondences(self.userImageName, self.leftSleeve, "userImageLeftSleeve")
         # self.collectCorrespondences(self.userImageName, self.rightSleeve, "userImageRightSleeve")
