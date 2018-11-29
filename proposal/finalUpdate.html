@@ -169,7 +169,7 @@
                 <li style="margin-left: 2em"> rNC: Right Neck Corner </li>
                 <br>
 
-                <div id="myCarousel3" class="carousel slide" data-ride="carousel" style="width: 50% ">
+                <div id="myCarousel3" class="carousel slide" data-ride="carousel" style="width: 50%; margin: auto">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                       <li data-target="#myCarousel3" data-slide-to="0" class="active"></li>
@@ -181,21 +181,21 @@
                     <!-- Wrapper for slides -->
                     <div class="carousel-inner">
                       <div class="item active">
-                        <img src="assets/images/fullDetection1.png" alt="Full Detection" style="width: 100%">
+                        <img src="assets/images/fullDetection1.png" alt="Full Detection" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/fullDetection2.png" alt="Full Detection" style="width: 100%">
+                        <img src="assets/images/fullDetection2.png" alt="Full Detection" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/fullDetection3.png" alt="Full Detection" style="width: 100%">
+                        <img src="assets/images/fullDetection3.png" alt="Full Detection" style="height: 500px; margin: auto">
                       </div>
                       <div class="item">
-                        <img src="assets/images/fullDetection4.png" alt="Full Detection" style="width: 100%">
+                        <img src="assets/images/fullDetection4.png" alt="Full Detection" style="height: 500px; margin: auto">
                       </div>
                       <div class="item">
-                        <img src="assets/images/fullDetection5.png" alt="Full Detection" style="width: 100%">
+                        <img src="assets/images/fullDetection5.png" alt="Full Detection" style="height: 500px; margin: auto">
                       </div>
                     </div>
                     <!-- Left and right controls -->
@@ -209,7 +209,7 @@
                     </a>
                 </div>
 
-                  <div class="container-fluid">
+                  <div class="container-fluid" style="text-align: center;">
                     <p><i>(Examples of an entirely, accurately labelled t-shirt image.)</i></p>
                   </div>
 
@@ -364,7 +364,7 @@
                 </p>
                 <br>
 
-                <div id="myCarousel5" class="carousel slide" data-ride="carousel" style="width: 50%">
+                <div id="myCarousel5" class="carousel slide" data-ride="carousel" style="width: 50%; margin: auto">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                       <li data-target="#myCarousel5" data-slide-to="0" class="active"></li>
@@ -377,24 +377,24 @@
                     <!-- Wrapper for slides -->
                     <div class="carousel-inner">
                       <div class="item active">
-                        <img src="assets/images/homographyNASA.png" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/homographyNASA.png" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/homographyCHAMP.png" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/homographyCHAMP.png" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/homographyBLUE.png" alt="Failure Case" style="width: 100%">
+                        <img src="assets/images/homographyBLUE.png" alt="Failure Case" style="height: 500px; margin: auto">
                       </div>
                         <div class="item">
-                            <img src="assets/images/homographySUPERMAN.png" alt="Failure Case" style="width: 100%">
+                            <img src="assets/images/homographySUPERMAN.png" alt="Failure Case" style="height: 500px; margin: auto">
                         </div>
                         <div class="item">
-                            <img src="assets/images/homographyNIKE.png" alt="Failure Case" style="width: 100%">
+                            <img src="assets/images/homographyNIKE.png" alt="Failure Case" style="height: 500px; margin: auto">
                         </div>
                         <div class="item">
-                            <img src="assets/images/homographyAVENGERS.png" alt="Failure Case" style="width: 100%">
+                            <img src="assets/images/homographyAVENGERS.png" alt="Failure Case" style="height: 500px; margin: auto">
                         </div>
                     </div>
                     <!-- Left and right controls -->
@@ -408,7 +408,7 @@
                     </a>
                   </div>
                   <br>
-                <p><i>(Results of homography using approach A.)</i></p>
+                <p style="text-align: center;"><i>(Results of homography using approach A.)</i></p>
                 <u>Approach B</u>
                 <p>
                     To find the most optimal way to warp an image we turned to our experimental work done below (see Experiment 1) with applying the hysteresis thresholding, Sobel Edge Detector, and hole-filling methodology. The output is a 2D boolean array explaining what components are in the foreground versus the background. From here, it was fairly trivial implementing this into our existing homography logic to only warp pixels that are identified as the shirt (foreground) onto our model. This process showed marked improvements over our existing approach due to the increased accuracy in background pixel detection.
@@ -456,7 +456,7 @@
                 <br>
 
 
-                <div id="myCarousel4" class="carousel slide" data-ride="carousel" style="width: 50%">
+                <div id="myCarousel4" class="carousel slide" data-ride="carousel" style="width: 50%; margin: auto">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                       <li data-target="#myCarousel4" data-slide-to="0" class="active"></li>
@@ -467,18 +467,18 @@
                     <!-- Wrapper for slides -->
                     <div class="carousel-inner">
                       <div class="item active">
-                        <img src="assets/images/black-shirt.png" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/black-shirt.png" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/homographyApproachB.png" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/homographyApproachB.png" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/blue-shirt.jpg" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/blue-shirt.jpg" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
                         <div class="item">
-                            <img src="assets/images/homographyApproachB2.png" alt="Success Case" style="width: 100%">
+                            <img src="assets/images/homographyApproachB2.png" alt="Success Case" style="height: 500px; margin: auto">
                         </div>
                     </div>
                     <!-- Left and right controls -->
@@ -499,7 +499,7 @@
                   </p>
 
 
-                <div id="myCarousel6" class="carousel slide" data-ride="carousel" style="width: 50%">
+                <div id="myCarousel6" class="carousel slide" data-ride="carousel" style="width: 500px; margin: auto;">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
                       <li data-target="#myCarousel6" data-slide-to="0" class="active"></li>
@@ -508,20 +508,20 @@
                       <li data-target="#myCarousel6" data-slide-to="3"></li>
                     </ol>
                     <!-- Wrapper for slides -->
-                    <div class="carousel-inner">
-                      <div class="item active">
-                        <img src="assets/images/poloShirt.jpg" alt="Success Case" style="width: 100%">
+                    <div class="carousel-inner" style="margin: auto;">
+                      <div class="item active" style="margin: auto;">
+                        <img src="assets/images/poloShirt.jpg" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/poloShirtFail.png" alt="Success Case" style="width: 100%">
+                        <img src="assets/images/poloShirtFail.png" alt="Success Case" style="height: 500px; margin: auto">
                       </div>
 
                       <div class="item">
-                        <img src="assets/images/greenShirt.jpg" alt="Failure Case" style="width: 100%">
+                        <img src="assets/images/greenShirt.jpg" alt="Failure Case" style="height: 500px; margin: auto">
                       </div>
                         <div class="item">
-                            <img src="assets/images/greenShirtFail.png" alt="Failure Case" style="width: 100%">
+                            <img src="assets/images/greenShirtFail.png" alt="Failure Case" style="height: 500px; margin: auto">
                         </div>
                     </div>
                     <!-- Left and right controls -->
